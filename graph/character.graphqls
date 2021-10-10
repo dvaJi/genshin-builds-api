@@ -1,0 +1,79 @@
+type SkillAttribute {
+  label: String!
+  values: [String!]!
+}
+
+type Skill {
+  id: String!
+  name: String!
+  description: String!
+  info: String!
+  attributes: [SkillAttribute]
+}
+
+type Passive {
+  id: String!
+  name: String!
+  description: String!
+  level: Int
+}
+
+type Constellation {
+  id: String!
+  name: String!
+  description: String!
+  level: Int
+}
+
+type AscensionMaterial {
+  id: String!
+  name: String!
+  amount: Int
+  rarity: Int
+}
+
+type Ascension {
+  ascension: Int
+  level: [Int]
+  cost: Int
+  mat_one: AscensionMaterial
+  mat_two: AscensionMaterial
+  mat_three: AscensionMaterial
+  mat_four: AscensionMaterial
+}
+
+type CharacterVoice {
+  english: String!
+  chinese: String!
+  japanese: String!
+  korean: String!
+}
+
+type TalentMaterial {
+  level: Int
+  cost: Int
+  items: [AscensionMaterial]
+}
+
+type Character {
+  id: String!
+  name: String!
+  title: String!
+  description: String!
+  weapon_type: String!
+  element: String!
+  gender: String!
+  substat: String!
+  affiliation: String!
+  region: String!
+  rarity: Int
+  birthday: [Int]
+  constellation: String!
+  domain: String!
+  cv: CharacterVoice
+  skills: [Skill]
+  passives: [Passive]
+  constellations: [Constellation]
+  ascension: [Ascension]
+  talent_materials: [TalentMaterial]
+}

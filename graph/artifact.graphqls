@@ -1,0 +1,20 @@
+type ArtifactSet {
+  id: ID!
+  name: String!
+  description: String
+}
+
+type Artifact {
+  id: ID!
+  name: String!
+  min_rarity: Int!
+  max_rarity: Int!
+  flower: ArtifactSet
+  plume: ArtifactSet
+  sands: ArtifactSet
+  goblet: ArtifactSet
+  circlet: ArtifactSet
+  one_pc: String
+  two_pc: String
+  four_pc: String
+}

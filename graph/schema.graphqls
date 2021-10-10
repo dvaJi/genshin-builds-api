@@ -1,0 +1,12 @@
+type Query {
+  artifacts(lang: String!): [Artifact!]!
+  artifact(id: ID!): Artifact!
+  characters: [Character!]!
+  character(id: ID!): Character!
+  commonMaterials: [CommonMaterial!]!
+  commonMaterial(id: ID!): CommonMaterial!
+}
+
+# type Mutation {
+#   createTodo(input: NewTodo!): Todo!
+# }

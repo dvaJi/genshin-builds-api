@@ -1,0 +1,19 @@
+type CommonMaterialItem {
+  id: String
+  name: String
+  amount: Int
+}
+
+type CommonMaterialCraft {
+  cost: Int
+  items: [CommonMaterialItem]
+}
+
+type CommonMaterial {
+  id: String
+  name: String
+  description: String
+  sources: [String]
+  rarity: Int
+  craft: CommonMaterialCraft
+}
