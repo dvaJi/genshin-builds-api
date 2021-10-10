@@ -22,10 +22,9 @@ func main() {
 	}
 
 	// dbConfig := &genshindata.DBImpl{
-	// 	DbUserName: os.Getenv("DB_USERNAME"),
-	// 	DbPassword: os.Getenv("DB_PASSWORD"),
-	// 	DbHost:     os.Getenv("DB_HOST"),
-	// 	DbPort:     os.Getenv("DB_PORT"),
+	// 	DbUserName: os.Getenv("DATABASE_USERNAME"),
+	// 	DbPassword: os.Getenv("DATABASE_PASSWORD"),
+	// 	DbHost:     os.Getenv("DATABASE_HOST"),
 	// }
 	dbConfig := &genshindata.DBImpl{
 		DbUserName: "root",
@@ -34,9 +33,6 @@ func main() {
 	}
 
 	dbClient := genshindata.Init(dbConfig)
-
-	// call intialize from gensindata.go
-	// initialize()
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: dbClient}}))
 

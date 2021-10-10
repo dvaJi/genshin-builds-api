@@ -9,9 +9,9 @@ const { MongoClient } = require("mongodb");
 const PORT = 3000;
 const HOST = '0.0.0.0';
 const DATA_DIR = path.join(__dirname, 'data');
-const DB_USER = encodeURIComponent("root");
-const DB_PASS = encodeURIComponent("example");
-const DB_HOST = "localhost";
+const DB_USER = encodeURIComponent(process.env.DATABASE_USER) || "root";
+const DB_PASS = encodeURIComponent(process.env.DATABASE_PASSWORD) || "example";
+const DB_HOST = process.env.DATABASE_HOST || "localhost";
 
 const uri = `mongodb://${DB_HOST}`;
 
