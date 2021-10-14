@@ -1,0 +1,38 @@
+type WeaponAscension {
+  ascension: Int
+  level: Int
+  cost: Int
+  materials: [AscensionMaterial]
+}
+
+type WeaponRefinement {
+  refinement: Int
+  desc: String
+}
+
+type StatLevel {
+  ascension: Int
+  level: Int
+  primary: Int
+  secondary: Float
+}
+
+type WeaponStat {
+  primary: String
+  secondary: String
+  levels: [StatLevel]
+}
+
+type Weapon {
+  id: String
+  name: String
+  description: String
+  rarity: Int
+  type: String
+  domain: String
+  passive: String
+  bonus: String
+  stats: WeaponStat
+  ascensions: [WeaponAscension]
+  refinements: [WeaponRefinement]
+}

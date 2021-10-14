@@ -1,0 +1,40 @@
+type Ingredient {
+  id: String
+  name: String
+  amount: Int
+}
+
+type FoodType {
+  name: String
+  description: String
+  effect: String
+}
+
+type CharacterFood {
+  id: String
+  name: String
+}
+
+type FoodSpecial {
+  name: String
+  description: String
+  effect: String
+  character: CharacterFood
+}
+
+type FoodResult {
+  normal: FoodType
+  delicious: FoodType
+  suspicious: FoodType
+  special: FoodSpecial
+}
+
+type Food {
+  id: String
+  name: String
+  description: String
+  ingredients: [Ingredient]
+  dish_type: String
+  results: FoodResult
+  rarity: Int
+}

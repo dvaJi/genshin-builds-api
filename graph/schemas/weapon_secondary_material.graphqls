@@ -1,0 +1,13 @@
+type CraftWeaponSecondary {
+  cost: Int
+  items: [Item]
+}
+
+type WeaponSecondaryMaterial {
+  id: String
+  name: String
+  description: String
+  source: [String]
+  rarity: Int
+  craft: CraftWeaponSecondary
+}

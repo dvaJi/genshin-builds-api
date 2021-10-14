@@ -1,0 +1,19 @@
+type Item {
+  id: String
+  name: String
+  amount: Int
+}
+
+type Recipe {
+  id: String
+  name: String
+}
+
+type Ingredients {
+  id: String
+  name: String
+  description: String
+  type: String
+  processing: [Item]
+  recipes: [Recipe]
+}

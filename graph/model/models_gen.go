@@ -40,6 +40,16 @@ type AscensionMaterial struct {
 	Rarity *int   `json:"rarity"`
 }
 
+type Bait struct {
+	ID          *string     `json:"id"`
+	Name        *string     `json:"name"`
+	Description *string     `json:"description"`
+	Type        *string     `json:"type"`
+	Rarity      *int        `json:"rarity"`
+	Craft       *Craft      `json:"craft"`
+	Fish        []*FishBait `json:"fish"`
+}
+
 type Character struct {
 	ID              string            `json:"id"`
 	Name            string            `json:"name"`
@@ -61,6 +71,11 @@ type Character struct {
 	Constellations  []*Constellation  `json:"constellations"`
 	Ascension       []*Ascension      `json:"ascension"`
 	TalentMaterials []*TalentMaterial `json:"talent_materials"`
+}
+
+type CharacterFood struct {
+	ID   *string `json:"id"`
+	Name *string `json:"name"`
 }
 
 type CharacterVoice struct {
@@ -97,11 +112,170 @@ type Constellation struct {
 	Level       *int   `json:"level"`
 }
 
+type Craft struct {
+	Items  []*CraftItem `json:"items"`
+	Result *int         `json:"result"`
+}
+
+type CraftItem struct {
+	ID     *string `json:"id"`
+	Name   *string `json:"name"`
+	Amount *int    `json:"amount"`
+}
+
+type CraftJewel struct {
+	Cost  *int    `json:"cost"`
+	Items []*Item `json:"items"`
+}
+
+type CraftPotion struct {
+	Cost  *int    `json:"cost"`
+	Items []*Item `json:"items"`
+}
+
+type CraftTalentLvlUp struct {
+	Cost  *int    `json:"cost"`
+	Items []*Item `json:"items"`
+}
+
+type CraftWeaponPrimary struct {
+	Cost  *int    `json:"cost"`
+	Items []*Item `json:"items"`
+}
+
+type CraftWeaponSecondary struct {
+	Cost  *int    `json:"cost"`
+	Items []*Item `json:"items"`
+}
+
+type ElementalStoneMaterial struct {
+	ID          *string   `json:"id"`
+	Name        *string   `json:"name"`
+	Description *string   `json:"description"`
+	Source      []*string `json:"source"`
+	Rarity      *int      `json:"rarity"`
+}
+
+type Fish struct {
+	ID          string      `json:"id"`
+	Name        *string     `json:"name"`
+	Description *string     `json:"description"`
+	Type        *string     `json:"type"`
+	Rarity      *int        `json:"rarity"`
+	Source      []*string   `json:"source"`
+	Bait        *SimpleBait `json:"bait"`
+}
+
+type FishBait struct {
+	ID     *string `json:"id"`
+	Name   *string `json:"name"`
+	Amount *int    `json:"amount"`
+}
+
+type FishingRod struct {
+	ID          *string   `json:"id"`
+	Name        *string   `json:"name"`
+	Description *string   `json:"description"`
+	Type        *string   `json:"type"`
+	Rarity      *int      `json:"rarity"`
+	Source      []*string `json:"source"`
+}
+
+type Food struct {
+	ID          *string       `json:"id"`
+	Name        *string       `json:"name"`
+	Description *string       `json:"description"`
+	Ingredients []*Ingredient `json:"ingredients"`
+	DishType    *string       `json:"dish_type"`
+	Results     *FoodResult   `json:"results"`
+	Rarity      *int          `json:"rarity"`
+}
+
+type FoodResult struct {
+	Normal     *FoodType    `json:"normal"`
+	Delicious  *FoodType    `json:"delicious"`
+	Suspicious *FoodType    `json:"suspicious"`
+	Special    *FoodSpecial `json:"special"`
+}
+
+type FoodSpecial struct {
+	Name        *string        `json:"name"`
+	Description *string        `json:"description"`
+	Effect      *string        `json:"effect"`
+	Character   *CharacterFood `json:"character"`
+}
+
+type FoodType struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Effect      *string `json:"effect"`
+}
+
+type Ingredient struct {
+	ID     *string `json:"id"`
+	Name   *string `json:"name"`
+	Amount *int    `json:"amount"`
+}
+
+type Ingredients struct {
+	ID          *string   `json:"id"`
+	Name        *string   `json:"name"`
+	Description *string   `json:"description"`
+	Type        *string   `json:"type"`
+	Processing  []*Item   `json:"processing"`
+	Recipes     []*Recipe `json:"recipes"`
+}
+
+type Item struct {
+	ID     *string `json:"id"`
+	Name   *string `json:"name"`
+	Amount *int    `json:"amount"`
+}
+
+type JewelMaterial struct {
+	ID          *string     `json:"id"`
+	Name        *string     `json:"name"`
+	Description *string     `json:"description"`
+	Source      []*string   `json:"source"`
+	Rarity      *int        `json:"rarity"`
+	Craft       *CraftJewel `json:"craft"`
+	Convert     [][]*Item   `json:"convert"`
+}
+
+type LocalMaterial struct {
+	ID          *string   `json:"id"`
+	Name        *string   `json:"name"`
+	Description *string   `json:"description"`
+	Source      []*string `json:"source"`
+	Location    *string   `json:"location"`
+}
+
 type Passive struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Level       *int   `json:"level"`
+}
+
+type Potion struct {
+	ID          *string      `json:"id"`
+	Name        *string      `json:"name"`
+	Description *string      `json:"description"`
+	Type        *string      `json:"type"`
+	Effect      *string      `json:"effect"`
+	Rarity      *int         `json:"rarity"`
+	Craft       *CraftPotion `json:"craft"`
+}
+
+type Recipe struct {
+	ID   *string `json:"id"`
+	Name *string `json:"name"`
+}
+
+type SimpleBait struct {
+	ID     *string `json:"id"`
+	Name   *string `json:"name"`
+	Rarity *int    `json:"rarity"`
 }
 
 type Skill struct {
@@ -117,8 +291,80 @@ type SkillAttribute struct {
 	Values []string `json:"values"`
 }
 
+type StatLevel struct {
+	Ascension *int     `json:"ascension"`
+	Level     *int     `json:"level"`
+	Primary   *int     `json:"primary"`
+	Secondary *float64 `json:"secondary"`
+}
+
+type TalentLvlUpMaterial struct {
+	ID          *string           `json:"id"`
+	Name        *string           `json:"name"`
+	Description *string           `json:"description"`
+	Source      []*string         `json:"source"`
+	Location    *string           `json:"location"`
+	Rarity      *int              `json:"rarity"`
+	Craft       *CraftTalentLvlUp `json:"craft"`
+	Domain      *string           `json:"domain"`
+	Days        []*string         `json:"days"`
+}
+
 type TalentMaterial struct {
 	Level *int                 `json:"level"`
 	Cost  *int                 `json:"cost"`
 	Items []*AscensionMaterial `json:"items"`
+}
+
+type Weapon struct {
+	ID          *string             `json:"id"`
+	Name        *string             `json:"name"`
+	Description *string             `json:"description"`
+	Rarity      *int                `json:"rarity"`
+	Type        *string             `json:"type"`
+	Domain      *string             `json:"domain"`
+	Passive     *string             `json:"passive"`
+	Bonus       *string             `json:"bonus"`
+	Stats       *WeaponStat         `json:"stats"`
+	Ascensions  []*WeaponAscension  `json:"ascensions"`
+	Refinements []*WeaponRefinement `json:"refinements"`
+}
+
+type WeaponAscension struct {
+	Ascension *int                 `json:"ascension"`
+	Level     *int                 `json:"level"`
+	Cost      *int                 `json:"cost"`
+	Materials []*AscensionMaterial `json:"materials"`
+}
+
+type WeaponPrimaryMaterial struct {
+	ID          *string             `json:"id"`
+	Name        *string             `json:"name"`
+	Description *string             `json:"description"`
+	Source      []*string           `json:"source"`
+	Location    *string             `json:"location"`
+	Rarity      *int                `json:"rarity"`
+	Craft       *CraftWeaponPrimary `json:"craft"`
+	Domain      *string             `json:"domain"`
+	Days        []*string           `json:"days"`
+}
+
+type WeaponRefinement struct {
+	Refinement *int    `json:"refinement"`
+	Desc       *string `json:"desc"`
+}
+
+type WeaponSecondaryMaterial struct {
+	ID          *string               `json:"id"`
+	Name        *string               `json:"name"`
+	Description *string               `json:"description"`
+	Source      []*string             `json:"source"`
+	Rarity      *int                  `json:"rarity"`
+	Craft       *CraftWeaponSecondary `json:"craft"`
+}
+
+type WeaponStat struct {
+	Primary   *string      `json:"primary"`
+	Secondary *string      `json:"secondary"`
+	Levels    []*StatLevel `json:"levels"`
 }

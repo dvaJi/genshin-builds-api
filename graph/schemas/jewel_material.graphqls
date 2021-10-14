@@ -1,0 +1,14 @@
+type CraftJewel {
+  cost: Int
+  items: [Item]
+}
+
+type JewelMaterial {
+  id: String
+  name: String
+  description: String
+  source: [String]
+  rarity: Int
+  craft: CraftJewel
+  convert: [[Item]]
+}

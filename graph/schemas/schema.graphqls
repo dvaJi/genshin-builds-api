@@ -1,0 +1,27 @@
+type Query {
+  artifacts(lang: String!): [Artifact!]!
+  artifact(lang: String!, id: ID!): Artifact!
+  characters(lang: String!): [Character!]!
+  character(lang: String!, id: ID!): Character!
+  commonMaterials(lang: String!): [CommonMaterial!]!
+  commonMaterial(lang: String!, id: ID!): CommonMaterial!
+  elementalStoneMaterials(lang: String!): [ElementalStoneMaterial!]!
+  elementalStoneMaterial(lang: String!, id: ID!): ElementalStoneMaterial!
+  fish(lang: String!): [Fish!]!
+  fishingRods(lang: String!): [FishingRod!]!
+  baits(lang: String!): [Bait!]!
+  food(lang: String!): [Food!]!
+  ingredients(lang: String!): [Ingredient!]!
+  jewelMaterials(lang: String!): [JewelMaterial!]!
+  localMaterials(lang: String!): [LocalMaterial!]!
+  potions(lang: String!): [Potion!]!
+  talentLvlUpMaterials(lang: String!): [TalentLvlUpMaterial!]!
+  weaponPrimaryMaterials(lang: String!): [WeaponPrimaryMaterial!]!
+  weaponSecondaryMaterials(lang: String!): [WeaponSecondaryMaterial!]!
+  weapons(lang: String!): [Weapon!]!
+  weapon(lang: String!, id: ID!): Weapon!
+}
+
+# type Mutation {
+#   createTodo(input: NewTodo!): Todo!
+# }

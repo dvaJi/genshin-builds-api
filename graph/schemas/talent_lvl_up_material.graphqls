@@ -1,0 +1,16 @@
+type CraftTalentLvlUp {
+  cost: Int
+  items: [Item]
+}
+
+type TalentLvlUpMaterial {
+  id: String
+  name: String
+  description: String
+  source: [String]
+  location: String
+  rarity: Int
+  craft: CraftTalentLvlUp
+  domain: String
+  days: [String]
+}

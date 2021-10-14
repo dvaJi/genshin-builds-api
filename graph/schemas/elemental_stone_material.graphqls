@@ -1,0 +1,7 @@
+type ElementalStoneMaterial {
+  id: String
+  name: String
+  description: String
+  source: [String]
+  rarity: Int
+}

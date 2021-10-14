@@ -1,0 +1,51 @@
+type SimpleBait {
+  id: String
+  name: String
+  rarity: Int
+}
+
+type Fish {
+  id: String!
+  name: String
+  description: String
+  type: String
+  rarity: Int
+  source: [String]
+  bait: SimpleBait
+}
+
+type FishingRod {
+  id: String
+  name: String
+  description: String
+  type: String
+  rarity: Int
+  source: [String]
+}
+
+type CraftItem {
+  id: String
+  name: String
+  amount: Int
+}
+
+type Craft {
+  items: [CraftItem]
+  result: Int
+}
+
+type FishBait {
+  id: String
+  name: String
+  amount: Int
+}
+
+type Bait {
+  id: String
+  name: String
+  description: String
+  type: String
+  rarity: Int
+  craft: Craft
+  fish: [FishBait]
+}

@@ -1,0 +1,7 @@
+type LocalMaterial {
+  id: String
+  name: String
+  description: String
+  source: [String]
+  location: String
+}
