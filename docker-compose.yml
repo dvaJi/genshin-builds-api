@@ -29,7 +29,7 @@ services:
   api:
     build:
       dockerfile: Dockerfile
-      context: .
+      context: ./graphql
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}

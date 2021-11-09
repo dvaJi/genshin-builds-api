@@ -1,0 +1,15 @@
+[
+  { "model": "*", "field": "_id", "tagPostfix": " bson:\"_id\"" },
+  { "model": "*", "field": "min_rarity", "tagPostfix": " bson:\"min_rarity\"" },
+  { "model": "*", "field": "max_rarity", "tagPostfix": " bson:\"max_rarity\"" },
+  { "model": "*", "field": "one_pc", "tagPostfix": " bson:\"one_pc\"" },
+  { "model": "*", "field": "two_pc", "tagPostfix": " bson:\"two_pc\"" },
+  { "model": "*", "field": "four_pc", "tagPostfix": " bson:\"four_pc\"" },
+  { "model": "*", "field": "mat_one", "tagPostfix": " bson:\"mat_one\"" },
+  { "model": "*", "field": "mat_two", "tagPostfix": " bson:\"mat_two\"" },
+  { "model": "*", "field": "mat_three", "tagPostfix": " bson:\"mat_three\"" },
+  { "model": "*", "field": "mat_four", "tagPostfix": " bson:\"mat_four\"" },
+  { "model": "*", "field": "weapon_type", "tagPostfix": " bson:\"weapon_type\"" },
+  { "model": "*", "field": "talent_materials", "tagPostfix": " bson:\"talent_materials\"" },
+  { "model": "*", "field": "dish_type", "tagPostfix": " bson:\"dish_type\"" }
+]

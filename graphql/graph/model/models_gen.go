@@ -5,16 +5,16 @@ package model
 type Artifact struct {
 	ID        string       `json:"id"`
 	Name      string       `json:"name"`
-	MinRarity int          `json:"min_rarity"`
-	MaxRarity int          `json:"max_rarity"`
+	MinRarity int          `json:"min_rarity" bson:"min_rarity"`
+	MaxRarity int          `json:"max_rarity" bson:"max_rarity"`
 	Flower    *ArtifactSet `json:"flower"`
 	Plume     *ArtifactSet `json:"plume"`
 	Sands     *ArtifactSet `json:"sands"`
 	Goblet    *ArtifactSet `json:"goblet"`
 	Circlet   *ArtifactSet `json:"circlet"`
-	OnePc     *string      `json:"one_pc"`
-	TwoPc     *string      `json:"two_pc"`
-	FourPc    *string      `json:"four_pc"`
+	OnePc     *string      `json:"one_pc" bson:"one_pc"`
+	TwoPc     *string      `json:"two_pc" bson:"two_pc"`
+	FourPc    *string      `json:"four_pc" bson:"four_pc"`
 }
 
 type ArtifactSet struct {
@@ -27,10 +27,10 @@ type Ascension struct {
 	Ascension *int               `json:"ascension"`
 	Level     []*int             `json:"level"`
 	Cost      *int               `json:"cost"`
-	MatOne    *AscensionMaterial `json:"mat_one"`
-	MatTwo    *AscensionMaterial `json:"mat_two"`
-	MatThree  *AscensionMaterial `json:"mat_three"`
-	MatFour   *AscensionMaterial `json:"mat_four"`
+	MatOne    *AscensionMaterial `json:"mat_one" bson:"mat_one"`
+	MatTwo    *AscensionMaterial `json:"mat_two" bson:"mat_two"`
+	MatThree  *AscensionMaterial `json:"mat_three" bson:"mat_three"`
+	MatFour   *AscensionMaterial `json:"mat_four" bson:"mat_four"`
 }
 
 type AscensionMaterial struct {
@@ -54,7 +54,7 @@ type Character struct {
 	Name            string            `json:"name"`
 	Title           string            `json:"title"`
 	Description     string            `json:"description"`
-	WeaponType      string            `json:"weapon_type"`
+	WeaponType      string            `json:"weapon_type" bson:"weapon_type"`
 	Element         string            `json:"element"`
 	Gender          string            `json:"gender"`
 	Substat         string            `json:"substat"`
@@ -69,7 +69,7 @@ type Character struct {
 	Passives        []*Passive        `json:"passives"`
 	Constellations  []*Constellation  `json:"constellations"`
 	Ascension       []*Ascension      `json:"ascension"`
-	TalentMaterials []*TalentMaterial `json:"talent_materials"`
+	TalentMaterials []*TalentMaterial `json:"talent_materials" bson:"talent_materials"`
 }
 
 type CharacterFood struct {
@@ -183,7 +183,7 @@ type Food struct {
 	Name        *string       `json:"name"`
 	Description *string       `json:"description"`
 	Ingredients []*Ingredient `json:"ingredients"`
-	DishType    *string       `json:"dish_type"`
+	DishType    *string       `json:"dish_type" bson:"dish_type"`
 	Results     *FoodResult   `json:"results"`
 	Rarity      *int          `json:"rarity"`
 }

@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"src/genshindata"
 
 	"github.com/dvaJi/genshin-builds-api/graph/generated"
@@ -16,7 +17,9 @@ func (r *queryResolver) Artifacts(ctx context.Context, lang string) ([]*model.Ar
 }
 
 func (r *queryResolver) Artifact(ctx context.Context, lang string, id string) (*model.Artifact, error) {
-	return genshindata.GetArtifactById(r.DB, lang, id)
+	art, err := genshindata.GetArtifactById(r.DB, lang, id)
+	fmt.Printf("%+v\n", art)
+	return art, err
 }
 
 func (r *queryResolver) Characters(ctx context.Context, lang string) ([]*model.Character, error) {

@@ -39,6 +39,11 @@ const datafolders = [
 // App
 const upload = multer({ dest: path.join(__dirname, 'data') })
 const app = express();
+app.get('/', (req, res) => {
+  // Return helloo world
+  res.send('Hello World!');
+});
+
 app.post('/updateData', upload.array('data', 13), async (req, res) => {
   try {
     await client.connect();
