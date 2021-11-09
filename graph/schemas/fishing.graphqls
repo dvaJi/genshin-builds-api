@@ -8,7 +8,6 @@ type Fish {
   id: String!
   name: String
   description: String
-  type: String
   rarity: Int
   source: [String]
   bait: SimpleBait
@@ -18,7 +17,6 @@ type FishingRod {
   id: String
   name: String
   description: String
-  type: String
   rarity: Int
   source: [String]
 }
@@ -44,7 +42,6 @@ type Bait {
   id: String
   name: String
   description: String
-  type: String
   rarity: Int
   craft: Craft
   fish: [FishBait]

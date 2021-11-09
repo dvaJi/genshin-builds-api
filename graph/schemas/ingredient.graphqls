@@ -13,7 +13,6 @@ type Ingredients {
   id: String
   name: String
   description: String
-  type: String
   processing: [Item]
   recipes: [Recipe]
 }

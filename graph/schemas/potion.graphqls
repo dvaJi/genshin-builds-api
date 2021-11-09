@@ -7,7 +7,6 @@ type Potion {
   id: String
   name: String
   description: String
-  type: String
   effect: String
   rarity: Int
   craft: CraftPotion

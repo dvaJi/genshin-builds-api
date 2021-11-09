@@ -13,7 +13,7 @@ type CommonMaterial {
   id: String
   name: String
   description: String
-  sources: [String]
+  source: [String]
   rarity: Int
   craft: CommonMaterialCraft
 }

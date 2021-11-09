@@ -87,7 +87,6 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	Character struct {
@@ -131,7 +130,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
-		Sources     func(childComplexity int) int
+		Source      func(childComplexity int) int
 	}
 
 	CommonMaterialCraft struct {
@@ -203,7 +202,6 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
 		Source      func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	FishBait struct {
@@ -218,7 +216,6 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
 		Source      func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	Food struct {
@@ -263,7 +260,6 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Processing  func(childComplexity int) int
 		Recipes     func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	Item struct {
@@ -304,7 +300,6 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	Query struct {
@@ -697,13 +692,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bait.Rarity(childComplexity), true
 
-	case "Bait.type":
-		if e.complexity.Bait.Type == nil {
-			break
-		}
-
-		return e.complexity.Bait.Type(childComplexity), true
-
 	case "Character.affiliation":
 		if e.complexity.Character.Affiliation == nil {
 			break
@@ -921,12 +909,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CommonMaterial.Rarity(childComplexity), true
 
-	case "CommonMaterial.sources":
-		if e.complexity.CommonMaterial.Sources == nil {
+	case "CommonMaterial.source":
+		if e.complexity.CommonMaterial.Source == nil {
 			break
 		}
 
-		return e.complexity.CommonMaterial.Sources(childComplexity), true
+		return e.complexity.CommonMaterial.Source(childComplexity), true
 
 	case "CommonMaterialCraft.cost":
 		if e.complexity.CommonMaterialCraft.Cost == nil {
@@ -1173,13 +1161,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Fish.Source(childComplexity), true
 
-	case "Fish.type":
-		if e.complexity.Fish.Type == nil {
-			break
-		}
-
-		return e.complexity.Fish.Type(childComplexity), true
-
 	case "FishBait.amount":
 		if e.complexity.FishBait.Amount == nil {
 			break
@@ -1235,13 +1216,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FishingRod.Source(childComplexity), true
-
-	case "FishingRod.type":
-		if e.complexity.FishingRod.Type == nil {
-			break
-		}
-
-		return e.complexity.FishingRod.Type(childComplexity), true
 
 	case "Food.description":
 		if e.complexity.Food.Description == nil {
@@ -1425,13 +1399,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Ingredients.Recipes(childComplexity), true
 
-	case "Ingredients.type":
-		if e.complexity.Ingredients.Type == nil {
-			break
-		}
-
-		return e.complexity.Ingredients.Type(childComplexity), true
-
 	case "Item.amount":
 		if e.complexity.Item.Amount == nil {
 			break
@@ -1606,13 +1573,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Potion.Rarity(childComplexity), true
-
-	case "Potion.type":
-		if e.complexity.Potion.Type == nil {
-			break
-		}
-
-		return e.complexity.Potion.Type(childComplexity), true
 
 	case "Query.artifact":
 		if e.complexity.Query.Artifact == nil {
@@ -2473,7 +2433,7 @@ type CommonMaterial {
   id: String
   name: String
   description: String
-  sources: [String]
+  source: [String]
   rarity: Int
   craft: CommonMaterialCraft
 }
@@ -2496,7 +2456,6 @@ type Fish {
   id: String!
   name: String
   description: String
-  type: String
   rarity: Int
   source: [String]
   bait: SimpleBait
@@ -2506,7 +2465,6 @@ type FishingRod {
   id: String
   name: String
   description: String
-  type: String
   rarity: Int
   source: [String]
 }
@@ -2532,7 +2490,6 @@ type Bait {
   id: String
   name: String
   description: String
-  type: String
   rarity: Int
   craft: Craft
   fish: [FishBait]
@@ -2594,7 +2551,6 @@ type Ingredients {
   id: String
   name: String
   description: String
-  type: String
   processing: [Item]
   recipes: [Recipe]
 }
@@ -2631,7 +2587,6 @@ type Potion {
   id: String
   name: String
   description: String
-  type: String
   effect: String
   rarity: Int
   craft: CraftPotion
@@ -4124,38 +4079,6 @@ func (ec *executionContext) _Bait_description(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Bait_type(ctx context.Context, field graphql.CollectedField, obj *model.Bait) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Bait",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Bait_rarity(ctx context.Context, field graphql.CollectedField, obj *model.Bait) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5228,7 +5151,7 @@ func (ec *executionContext) _CommonMaterial_description(ctx context.Context, fie
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CommonMaterial_sources(ctx context.Context, field graphql.CollectedField, obj *model.CommonMaterial) (ret graphql.Marshaler) {
+func (ec *executionContext) _CommonMaterial_source(ctx context.Context, field graphql.CollectedField, obj *model.CommonMaterial) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -5246,7 +5169,7 @@ func (ec *executionContext) _CommonMaterial_sources(ctx context.Context, field g
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Sources, nil
+		return obj.Source, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6360,38 +6283,6 @@ func (ec *executionContext) _Fish_description(ctx context.Context, field graphql
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Fish_type(ctx context.Context, field graphql.CollectedField, obj *model.Fish) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Fish",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Fish_rarity(ctx context.Context, field graphql.CollectedField, obj *model.Fish) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6667,38 +6558,6 @@ func (ec *executionContext) _FishingRod_description(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _FishingRod_type(ctx context.Context, field graphql.CollectedField, obj *model.FishingRod) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "FishingRod",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7544,38 +7403,6 @@ func (ec *executionContext) _Ingredients_description(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Ingredients_type(ctx context.Context, field graphql.CollectedField, obj *model.Ingredients) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Ingredients",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Ingredients_processing(ctx context.Context, field graphql.CollectedField, obj *model.Ingredients) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8340,38 +8167,6 @@ func (ec *executionContext) _Potion_description(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Potion_type(ctx context.Context, field graphql.CollectedField, obj *model.Potion) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Potion",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12779,8 +12574,6 @@ func (ec *executionContext) _Bait(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Bait_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Bait_description(ctx, field, obj)
-		case "type":
-			out.Values[i] = ec._Bait_type(ctx, field, obj)
 		case "rarity":
 			out.Values[i] = ec._Bait_rarity(ctx, field, obj)
 		case "craft":
@@ -12981,8 +12774,8 @@ func (ec *executionContext) _CommonMaterial(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._CommonMaterial_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._CommonMaterial_description(ctx, field, obj)
-		case "sources":
-			out.Values[i] = ec._CommonMaterial_sources(ctx, field, obj)
+		case "source":
+			out.Values[i] = ec._CommonMaterial_source(ctx, field, obj)
 		case "rarity":
 			out.Values[i] = ec._CommonMaterial_rarity(ctx, field, obj)
 		case "craft":
@@ -13327,8 +13120,6 @@ func (ec *executionContext) _Fish(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Fish_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Fish_description(ctx, field, obj)
-		case "type":
-			out.Values[i] = ec._Fish_type(ctx, field, obj)
 		case "rarity":
 			out.Values[i] = ec._Fish_rarity(ctx, field, obj)
 		case "source":
@@ -13391,8 +13182,6 @@ func (ec *executionContext) _FishingRod(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._FishingRod_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._FishingRod_description(ctx, field, obj)
-		case "type":
-			out.Values[i] = ec._FishingRod_type(ctx, field, obj)
 		case "rarity":
 			out.Values[i] = ec._FishingRod_rarity(ctx, field, obj)
 		case "source":
@@ -13577,8 +13366,6 @@ func (ec *executionContext) _Ingredients(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._Ingredients_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Ingredients_description(ctx, field, obj)
-		case "type":
-			out.Values[i] = ec._Ingredients_type(ctx, field, obj)
 		case "processing":
 			out.Values[i] = ec._Ingredients_processing(ctx, field, obj)
 		case "recipes":
@@ -13746,8 +13533,6 @@ func (ec *executionContext) _Potion(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Potion_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._Potion_description(ctx, field, obj)
-		case "type":
-			out.Values[i] = ec._Potion_type(ctx, field, obj)
 		case "effect":
 			out.Values[i] = ec._Potion_effect(ctx, field, obj)
 		case "rarity":

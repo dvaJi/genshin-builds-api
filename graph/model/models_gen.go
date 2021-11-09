@@ -44,7 +44,6 @@ type Bait struct {
 	ID          *string     `json:"id"`
 	Name        *string     `json:"name"`
 	Description *string     `json:"description"`
-	Type        *string     `json:"type"`
 	Rarity      *int        `json:"rarity"`
 	Craft       *Craft      `json:"craft"`
 	Fish        []*FishBait `json:"fish"`
@@ -89,7 +88,7 @@ type CommonMaterial struct {
 	ID          *string              `json:"id"`
 	Name        *string              `json:"name"`
 	Description *string              `json:"description"`
-	Sources     []*string            `json:"sources"`
+	Source      []*string            `json:"source"`
 	Rarity      *int                 `json:"rarity"`
 	Craft       *CommonMaterialCraft `json:"craft"`
 }
@@ -160,7 +159,6 @@ type Fish struct {
 	ID          string      `json:"id"`
 	Name        *string     `json:"name"`
 	Description *string     `json:"description"`
-	Type        *string     `json:"type"`
 	Rarity      *int        `json:"rarity"`
 	Source      []*string   `json:"source"`
 	Bait        *SimpleBait `json:"bait"`
@@ -176,7 +174,6 @@ type FishingRod struct {
 	ID          *string   `json:"id"`
 	Name        *string   `json:"name"`
 	Description *string   `json:"description"`
-	Type        *string   `json:"type"`
 	Rarity      *int      `json:"rarity"`
 	Source      []*string `json:"source"`
 }
@@ -221,7 +218,6 @@ type Ingredients struct {
 	ID          *string   `json:"id"`
 	Name        *string   `json:"name"`
 	Description *string   `json:"description"`
-	Type        *string   `json:"type"`
 	Processing  []*Item   `json:"processing"`
 	Recipes     []*Recipe `json:"recipes"`
 }
@@ -261,7 +257,6 @@ type Potion struct {
 	ID          *string      `json:"id"`
 	Name        *string      `json:"name"`
 	Description *string      `json:"description"`
-	Type        *string      `json:"type"`
 	Effect      *string      `json:"effect"`
 	Rarity      *int         `json:"rarity"`
 	Craft       *CraftPotion `json:"craft"`
