@@ -3,6 +3,7 @@ type Query {
   artifact(lang: String!, id: ID!): Artifact!
   characters(lang: String!): [Character!]!
   character(lang: String!, id: ID!): Character!
+  characterExpMaterials(lang: String!): [ExpMaterial!]!
   commonMaterials(lang: String!): [CommonMaterial!]!
   commonMaterial(lang: String!, id: ID!): CommonMaterial!
   elementalStoneMaterials(lang: String!): [ElementalStoneMaterial!]!
@@ -18,8 +19,14 @@ type Query {
   talentLvlUpMaterials(lang: String!): [TalentLvlUpMaterial!]!
   weaponPrimaryMaterials(lang: String!): [WeaponPrimaryMaterial!]!
   weaponSecondaryMaterials(lang: String!): [WeaponSecondaryMaterial!]!
+  weaponExpMaterials(lang: String!): [ExpMaterial!]!
   weapons(lang: String!): [Weapon!]!
   weapon(lang: String!, id: ID!): Weapon!
+  calculateCharacterLevel(
+    characterId: String!
+    lang: String!
+    params: CalculateCharacterParams!
+  ): CalculationCharacterResult!
 }
 
 # type Mutation {

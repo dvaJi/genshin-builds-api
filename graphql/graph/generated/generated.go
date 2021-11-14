@@ -89,6 +89,18 @@ type ComplexityRoot struct {
 		Rarity      func(childComplexity int) int
 	}
 
+	CalculationCharacterItemResult struct {
+		Amount func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Img    func(childComplexity int) int
+		Name   func(childComplexity int) int
+	}
+
+	CalculationCharacterResult struct {
+		ExpWasted func(childComplexity int) int
+		Items     func(childComplexity int) int
+	}
+
 	Character struct {
 		Affiliation     func(childComplexity int) int
 		Ascension       func(childComplexity int) int
@@ -193,6 +205,14 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Rarity      func(childComplexity int) int
 		Source      func(childComplexity int) int
+	}
+
+	ExpMaterial struct {
+		Description func(childComplexity int) int
+		Exp         func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Rarity      func(childComplexity int) int
 	}
 
 	Fish struct {
@@ -306,7 +326,9 @@ type ComplexityRoot struct {
 		Artifact                 func(childComplexity int, lang string, id string) int
 		Artifacts                func(childComplexity int, lang string) int
 		Baits                    func(childComplexity int, lang string) int
+		CalculateCharacterLevel  func(childComplexity int, characterID string, lang string, params model.CalculateCharacterParams) int
 		Character                func(childComplexity int, lang string, id string) int
+		CharacterExpMaterials    func(childComplexity int, lang string) int
 		Characters               func(childComplexity int, lang string) int
 		CommonMaterial           func(childComplexity int, lang string, id string) int
 		CommonMaterials          func(childComplexity int, lang string) int
@@ -321,6 +343,7 @@ type ComplexityRoot struct {
 		Potions                  func(childComplexity int, lang string) int
 		TalentLvlUpMaterials     func(childComplexity int, lang string) int
 		Weapon                   func(childComplexity int, lang string, id string) int
+		WeaponExpMaterials       func(childComplexity int, lang string) int
 		WeaponPrimaryMaterials   func(childComplexity int, lang string) int
 		WeaponSecondaryMaterials func(childComplexity int, lang string) int
 		Weapons                  func(childComplexity int, lang string) int
@@ -434,6 +457,7 @@ type QueryResolver interface {
 	Artifact(ctx context.Context, lang string, id string) (*model.Artifact, error)
 	Characters(ctx context.Context, lang string) ([]*model.Character, error)
 	Character(ctx context.Context, lang string, id string) (*model.Character, error)
+	CharacterExpMaterials(ctx context.Context, lang string) ([]*model.ExpMaterial, error)
 	CommonMaterials(ctx context.Context, lang string) ([]*model.CommonMaterial, error)
 	CommonMaterial(ctx context.Context, lang string, id string) (*model.CommonMaterial, error)
 	ElementalStoneMaterials(ctx context.Context, lang string) ([]*model.ElementalStoneMaterial, error)
@@ -449,8 +473,10 @@ type QueryResolver interface {
 	TalentLvlUpMaterials(ctx context.Context, lang string) ([]*model.TalentLvlUpMaterial, error)
 	WeaponPrimaryMaterials(ctx context.Context, lang string) ([]*model.WeaponPrimaryMaterial, error)
 	WeaponSecondaryMaterials(ctx context.Context, lang string) ([]*model.WeaponSecondaryMaterial, error)
+	WeaponExpMaterials(ctx context.Context, lang string) ([]*model.ExpMaterial, error)
 	Weapons(ctx context.Context, lang string) ([]*model.Weapon, error)
 	Weapon(ctx context.Context, lang string, id string) (*model.Weapon, error)
+	CalculateCharacterLevel(ctx context.Context, characterID string, lang string, params model.CalculateCharacterParams) (*model.CalculationCharacterResult, error)
 }
 
 type executableSchema struct {
@@ -691,6 +717,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Bait.Rarity(childComplexity), true
+
+	case "CalculationCharacterItemResult.amount":
+		if e.complexity.CalculationCharacterItemResult.Amount == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterItemResult.Amount(childComplexity), true
+
+	case "CalculationCharacterItemResult.id":
+		if e.complexity.CalculationCharacterItemResult.ID == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterItemResult.ID(childComplexity), true
+
+	case "CalculationCharacterItemResult.img":
+		if e.complexity.CalculationCharacterItemResult.Img == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterItemResult.Img(childComplexity), true
+
+	case "CalculationCharacterItemResult.name":
+		if e.complexity.CalculationCharacterItemResult.Name == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterItemResult.Name(childComplexity), true
+
+	case "CalculationCharacterResult.expWasted":
+		if e.complexity.CalculationCharacterResult.ExpWasted == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterResult.ExpWasted(childComplexity), true
+
+	case "CalculationCharacterResult.items":
+		if e.complexity.CalculationCharacterResult.Items == nil {
+			break
+		}
+
+		return e.complexity.CalculationCharacterResult.Items(childComplexity), true
 
 	case "Character.affiliation":
 		if e.complexity.Character.Affiliation == nil {
@@ -1118,6 +1186,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ElementalStoneMaterial.Source(childComplexity), true
+
+	case "ExpMaterial.description":
+		if e.complexity.ExpMaterial.Description == nil {
+			break
+		}
+
+		return e.complexity.ExpMaterial.Description(childComplexity), true
+
+	case "ExpMaterial.exp":
+		if e.complexity.ExpMaterial.Exp == nil {
+			break
+		}
+
+		return e.complexity.ExpMaterial.Exp(childComplexity), true
+
+	case "ExpMaterial.id":
+		if e.complexity.ExpMaterial.ID == nil {
+			break
+		}
+
+		return e.complexity.ExpMaterial.ID(childComplexity), true
+
+	case "ExpMaterial.name":
+		if e.complexity.ExpMaterial.Name == nil {
+			break
+		}
+
+		return e.complexity.ExpMaterial.Name(childComplexity), true
+
+	case "ExpMaterial.rarity":
+		if e.complexity.ExpMaterial.Rarity == nil {
+			break
+		}
+
+		return e.complexity.ExpMaterial.Rarity(childComplexity), true
 
 	case "Fish.bait":
 		if e.complexity.Fish.Bait == nil {
@@ -1610,6 +1713,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Baits(childComplexity, args["lang"].(string)), true
 
+	case "Query.calculateCharacterLevel":
+		if e.complexity.Query.CalculateCharacterLevel == nil {
+			break
+		}
+
+		args, err := ec.field_Query_calculateCharacterLevel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CalculateCharacterLevel(childComplexity, args["characterId"].(string), args["lang"].(string), args["params"].(model.CalculateCharacterParams)), true
+
 	case "Query.character":
 		if e.complexity.Query.Character == nil {
 			break
@@ -1621,6 +1736,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Character(childComplexity, args["lang"].(string), args["id"].(string)), true
+
+	case "Query.characterExpMaterials":
+		if e.complexity.Query.CharacterExpMaterials == nil {
+			break
+		}
+
+		args, err := ec.field_Query_characterExpMaterials_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CharacterExpMaterials(childComplexity, args["lang"].(string)), true
 
 	case "Query.characters":
 		if e.complexity.Query.Characters == nil {
@@ -1789,6 +1916,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Weapon(childComplexity, args["lang"].(string), args["id"].(string)), true
+
+	case "Query.weaponExpMaterials":
+		if e.complexity.Query.WeaponExpMaterials == nil {
+			break
+		}
+
+		args, err := ec.field_Query_weaponExpMaterials_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.WeaponExpMaterials(childComplexity, args["lang"].(string)), true
 
 	case "Query.weaponPrimaryMaterials":
 		if e.complexity.Query.WeaponPrimaryMaterials == nil {
@@ -2338,6 +2477,37 @@ type Artifact {
   four_pc: String
 }
 `, BuiltIn: false},
+	{Name: "graph/schemas/calculate.graphqls", Input: `input ExpLevel {
+  lvl: Int!
+  asc: Boolean!
+  asclLvl: Int!
+}
+
+input TalentLevel {
+  aa: Int!
+  skill: Int!
+  burst: Int!
+}
+
+type CalculationCharacterItemResult {
+  id: String!
+  img: String!
+  name: String!
+  amount: Int!
+}
+
+input CalculateCharacterParams {
+  currentLevel: ExpLevel
+  intendedLevel: ExpLevel
+  currentTalentLvl: TalentLevel
+  intendedTalentLvl: TalentLevel
+}
+
+type CalculationCharacterResult {
+  expWasted: Int
+  items: [CalculationCharacterItemResult]
+}
+`, BuiltIn: false},
 	{Name: "graph/schemas/character.graphqls", Input: `type SkillAttribute {
   label: String!
   values: [String!]!
@@ -2444,6 +2614,14 @@ type CommonMaterial {
   description: String
   source: [String]
   rarity: Int
+}
+`, BuiltIn: false},
+	{Name: "graph/schemas/exp.graphqls", Input: `type ExpMaterial {
+  id: String!
+  name: String!
+  description: String!
+  rarity: Int!
+  exp: Int!
 }
 `, BuiltIn: false},
 	{Name: "graph/schemas/fishing.graphqls", Input: `type SimpleBait {
@@ -2597,6 +2775,7 @@ type Potion {
   artifact(lang: String!, id: ID!): Artifact!
   characters(lang: String!): [Character!]!
   character(lang: String!, id: ID!): Character!
+  characterExpMaterials(lang: String!): [ExpMaterial!]!
   commonMaterials(lang: String!): [CommonMaterial!]!
   commonMaterial(lang: String!, id: ID!): CommonMaterial!
   elementalStoneMaterials(lang: String!): [ElementalStoneMaterial!]!
@@ -2612,8 +2791,14 @@ type Potion {
   talentLvlUpMaterials(lang: String!): [TalentLvlUpMaterial!]!
   weaponPrimaryMaterials(lang: String!): [WeaponPrimaryMaterial!]!
   weaponSecondaryMaterials(lang: String!): [WeaponSecondaryMaterial!]!
+  weaponExpMaterials(lang: String!): [ExpMaterial!]!
   weapons(lang: String!): [Weapon!]!
   weapon(lang: String!, id: ID!): Weapon!
+  calculateCharacterLevel(
+    characterId: String!
+    lang: String!
+    params: CalculateCharacterParams!
+  ): CalculationCharacterResult!
 }
 
 # type Mutation {
@@ -2769,6 +2954,54 @@ func (ec *executionContext) field_Query_artifacts_args(ctx context.Context, rawA
 }
 
 func (ec *executionContext) field_Query_baits_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["lang"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lang"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_calculateCharacterLevel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["characterId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("characterId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["characterId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["lang"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lang"] = arg1
+	var arg2 model.CalculateCharacterParams
+	if tmp, ok := rawArgs["params"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+		arg2, err = ec.unmarshalNCalculateCharacterParams2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculateCharacterParams(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["params"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_characterExpMaterials_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -3006,6 +3239,21 @@ func (ec *executionContext) field_Query_potions_args(ctx context.Context, rawArg
 }
 
 func (ec *executionContext) field_Query_talentLvlUpMaterials_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["lang"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lang"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_weaponExpMaterials_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -4173,6 +4421,210 @@ func (ec *executionContext) _Bait_fish(ctx context.Context, field graphql.Collec
 	res := resTmp.([]*model.FishBait)
 	fc.Result = res
 	return ec.marshalOFishBait2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐFishBait(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterItemResult_id(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterItemResult_img(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Img, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterItemResult_name(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterItemResult_amount(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterResult_expWasted(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpWasted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationCharacterResult_items(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationCharacterResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.CalculationCharacterItemResult)
+	fc.Result = res
+	return ec.marshalOCalculationCharacterItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Character_id(ctx context.Context, field graphql.CollectedField, obj *model.Character) (ret graphql.Marshaler) {
@@ -6182,6 +6634,181 @@ func (ec *executionContext) _ElementalStoneMaterial_rarity(ctx context.Context, 
 	res := resTmp.(*int)
 	fc.Result = res
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpMaterial_id(ctx context.Context, field graphql.CollectedField, obj *model.ExpMaterial) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpMaterial",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpMaterial_name(ctx context.Context, field graphql.CollectedField, obj *model.ExpMaterial) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpMaterial",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpMaterial_description(ctx context.Context, field graphql.CollectedField, obj *model.ExpMaterial) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpMaterial",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpMaterial_rarity(ctx context.Context, field graphql.CollectedField, obj *model.ExpMaterial) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpMaterial",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rarity, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExpMaterial_exp(ctx context.Context, field graphql.CollectedField, obj *model.ExpMaterial) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExpMaterial",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Exp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Fish_id(ctx context.Context, field graphql.CollectedField, obj *model.Fish) (ret graphql.Marshaler) {
@@ -8444,6 +9071,48 @@ func (ec *executionContext) _Query_character(ctx context.Context, field graphql.
 	return ec.marshalNCharacter2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCharacter(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_characterExpMaterials(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_characterExpMaterials_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CharacterExpMaterials(rctx, args["lang"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ExpMaterial)
+	fc.Result = res
+	return ec.marshalNExpMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterialᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_commonMaterials(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9074,6 +9743,48 @@ func (ec *executionContext) _Query_weaponSecondaryMaterials(ctx context.Context,
 	return ec.marshalNWeaponSecondaryMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐWeaponSecondaryMaterialᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_weaponExpMaterials(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_weaponExpMaterials_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().WeaponExpMaterials(rctx, args["lang"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ExpMaterial)
+	fc.Result = res
+	return ec.marshalNExpMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterialᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_weapons(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9156,6 +9867,48 @@ func (ec *executionContext) _Query_weapon(ctx context.Context, field graphql.Col
 	res := resTmp.(*model.Weapon)
 	fc.Result = res
 	return ec.marshalNWeapon2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐWeapon(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_calculateCharacterLevel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_calculateCharacterLevel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CalculateCharacterLevel(rctx, args["characterId"].(string), args["lang"].(string), args["params"].(model.CalculateCharacterParams))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CalculationCharacterResult)
+	fc.Result = res
+	return ec.marshalNCalculationCharacterResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -12385,6 +13138,131 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCalculateCharacterParams(ctx context.Context, obj interface{}) (model.CalculateCharacterParams, error) {
+	var it model.CalculateCharacterParams
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "currentLevel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentLevel"))
+			it.CurrentLevel, err = ec.unmarshalOExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "intendedLevel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("intendedLevel"))
+			it.IntendedLevel, err = ec.unmarshalOExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "currentTalentLvl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentTalentLvl"))
+			it.CurrentTalentLvl, err = ec.unmarshalOTalentLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐTalentLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "intendedTalentLvl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("intendedTalentLvl"))
+			it.IntendedTalentLvl, err = ec.unmarshalOTalentLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐTalentLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputExpLevel(ctx context.Context, obj interface{}) (model.ExpLevel, error) {
+	var it model.ExpLevel
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "lvl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lvl"))
+			it.Lvl, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "asc":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asc"))
+			it.Asc, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "asclLvl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asclLvl"))
+			it.AsclLvl, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTalentLevel(ctx context.Context, obj interface{}) (model.TalentLevel, error) {
+	var it model.TalentLevel
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "aa":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("aa"))
+			it.Aa, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "skill":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("skill"))
+			it.Skill, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "burst":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("burst"))
+			it.Burst, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -12580,6 +13458,74 @@ func (ec *executionContext) _Bait(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Bait_craft(ctx, field, obj)
 		case "fish":
 			out.Values[i] = ec._Bait_fish(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var calculationCharacterItemResultImplementors = []string{"CalculationCharacterItemResult"}
+
+func (ec *executionContext) _CalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, obj *model.CalculationCharacterItemResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, calculationCharacterItemResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CalculationCharacterItemResult")
+		case "id":
+			out.Values[i] = ec._CalculationCharacterItemResult_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "img":
+			out.Values[i] = ec._CalculationCharacterItemResult_img(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._CalculationCharacterItemResult_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "amount":
+			out.Values[i] = ec._CalculationCharacterItemResult_amount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var calculationCharacterResultImplementors = []string{"CalculationCharacterResult"}
+
+func (ec *executionContext) _CalculationCharacterResult(ctx context.Context, sel ast.SelectionSet, obj *model.CalculationCharacterResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, calculationCharacterResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CalculationCharacterResult")
+		case "expWasted":
+			out.Values[i] = ec._CalculationCharacterResult_expWasted(ctx, field, obj)
+		case "items":
+			out.Values[i] = ec._CalculationCharacterResult_items(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13089,6 +14035,53 @@ func (ec *executionContext) _ElementalStoneMaterial(ctx context.Context, sel ast
 			out.Values[i] = ec._ElementalStoneMaterial_source(ctx, field, obj)
 		case "rarity":
 			out.Values[i] = ec._ElementalStoneMaterial_rarity(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var expMaterialImplementors = []string{"ExpMaterial"}
+
+func (ec *executionContext) _ExpMaterial(ctx context.Context, sel ast.SelectionSet, obj *model.ExpMaterial) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, expMaterialImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExpMaterial")
+		case "id":
+			out.Values[i] = ec._ExpMaterial_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ExpMaterial_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+			out.Values[i] = ec._ExpMaterial_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "rarity":
+			out.Values[i] = ec._ExpMaterial_rarity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "exp":
+			out.Values[i] = ec._ExpMaterial_exp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13621,6 +14614,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "characterExpMaterials":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_characterExpMaterials(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "commonMaterials":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -13831,6 +14838,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "weaponExpMaterials":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_weaponExpMaterials(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "weapons":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -13854,6 +14875,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_weapon(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "calculateCharacterLevel":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_calculateCharacterLevel(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -14681,6 +15716,25 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCalculateCharacterParams2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculateCharacterParams(ctx context.Context, v interface{}) (model.CalculateCharacterParams, error) {
+	res, err := ec.unmarshalInputCalculateCharacterParams(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCalculationCharacterResult2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterResult(ctx context.Context, sel ast.SelectionSet, v model.CalculationCharacterResult) graphql.Marshaler {
+	return ec._CalculationCharacterResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCalculationCharacterResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterResult(ctx context.Context, sel ast.SelectionSet, v *model.CalculationCharacterResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._CalculationCharacterResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNCharacter2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCharacter(ctx context.Context, sel ast.SelectionSet, v model.Character) graphql.Marshaler {
 	return ec._Character(ctx, sel, &v)
 }
@@ -14853,6 +15907,60 @@ func (ec *executionContext) marshalNElementalStoneMaterial2ᚖgithubᚗcomᚋdva
 		return graphql.Null
 	}
 	return ec._ElementalStoneMaterial(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNExpMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterialᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ExpMaterial) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNExpMaterial2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterial(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNExpMaterial2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterial(ctx context.Context, sel ast.SelectionSet, v *model.ExpMaterial) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ExpMaterial(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNFish2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐFishᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Fish) graphql.Marshaler {
@@ -15918,6 +17026,54 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
+func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, v []*model.CalculationCharacterItemResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOCalculationCharacterItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, v *model.CalculationCharacterItemResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CalculationCharacterItemResult(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOCharacterFood2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCharacterFood(ctx context.Context, sel ast.SelectionSet, v *model.CharacterFood) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -16123,6 +17279,14 @@ func (ec *executionContext) marshalOCraftWeaponSecondary2ᚖgithubᚗcomᚋdvaJi
 		return graphql.Null
 	}
 	return ec._CraftWeaponSecondary(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx context.Context, v interface{}) (*model.ExpLevel, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputExpLevel(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOFishBait2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐFishBait(ctx context.Context, sel ast.SelectionSet, v []*model.FishBait) graphql.Marshaler {
@@ -16702,6 +17866,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) unmarshalOTalentLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐTalentLevel(ctx context.Context, v interface{}) (*model.TalentLevel, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTalentLevel(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTalentMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐTalentMaterial(ctx context.Context, sel ast.SelectionSet, v []*model.TalentMaterial) graphql.Marshaler {

@@ -1,0 +1,30 @@
+input ExpLevel {
+  lvl: Int!
+  asc: Boolean!
+  asclLvl: Int!
+}
+
+input TalentLevel {
+  aa: Int!
+  skill: Int!
+  burst: Int!
+}
+
+type CalculationCharacterItemResult {
+  id: String!
+  img: String!
+  name: String!
+  amount: Int!
+}
+
+input CalculateCharacterParams {
+  currentLevel: ExpLevel
+  intendedLevel: ExpLevel
+  currentTalentLvl: TalentLevel
+  intendedTalentLvl: TalentLevel
+}
+
+type CalculationCharacterResult {
+  expWasted: Int
+  items: [CalculationCharacterItemResult]
+}

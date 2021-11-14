@@ -78,16 +78,16 @@ func main() {
 		port = defaultPort
 	}
 
-	dbConfig := &genshindata.DBImpl{
-		DbUserName: os.Getenv("DATABASE_USER"),
-		DbPassword: os.Getenv("DATABASE_PASSWORD"),
-		DbHost:     os.Getenv("DATABASE_HOST"),
-	}
 	// dbConfig := &genshindata.DBImpl{
-	// 	DbUserName: "root",
-	// 	DbPassword: "example",
-	// 	DbHost:     "localhost",
+	// 	DbUserName: os.Getenv("DATABASE_USER"),
+	// 	DbPassword: os.Getenv("DATABASE_PASSWORD"),
+	// 	DbHost:     os.Getenv("DATABASE_HOST"),
 	// }
+	dbConfig := &genshindata.DBImpl{
+		DbUserName: "root",
+		DbPassword: "example",
+		DbHost:     "localhost",
+	}
 
 	dbClient := genshindata.Init(dbConfig)
 

@@ -1,0 +1,7 @@
+type ExpMaterial {
+  id: String!
+  name: String!
+  description: String!
+  rarity: Int!
+  exp: Int!
+}

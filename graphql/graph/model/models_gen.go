@@ -27,10 +27,10 @@ type Ascension struct {
 	Ascension *int               `json:"ascension"`
 	Level     []*int             `json:"level"`
 	Cost      *int               `json:"cost"`
-	MatOne    *AscensionMaterial `json:"mat_one" bson:"mat_one"`
-	MatTwo    *AscensionMaterial `json:"mat_two" bson:"mat_two"`
-	MatThree  *AscensionMaterial `json:"mat_three" bson:"mat_three"`
-	MatFour   *AscensionMaterial `json:"mat_four" bson:"mat_four"`
+	MatOne    *AscensionMaterial `json:"mat_one" bson:"mat1"`
+	MatTwo    *AscensionMaterial `json:"mat_two" bson:"mat2"`
+	MatThree  *AscensionMaterial `json:"mat_three" bson:"mat3"`
+	MatFour   *AscensionMaterial `json:"mat_four" bson:"mat4"`
 }
 
 type AscensionMaterial struct {
@@ -47,6 +47,25 @@ type Bait struct {
 	Rarity      *int        `json:"rarity"`
 	Craft       *Craft      `json:"craft"`
 	Fish        []*FishBait `json:"fish"`
+}
+
+type CalculateCharacterParams struct {
+	CurrentLevel      *ExpLevel    `json:"currentLevel"`
+	IntendedLevel     *ExpLevel    `json:"intendedLevel"`
+	CurrentTalentLvl  *TalentLevel `json:"currentTalentLvl"`
+	IntendedTalentLvl *TalentLevel `json:"intendedTalentLvl"`
+}
+
+type CalculationCharacterItemResult struct {
+	ID     string `json:"id"`
+	Img    string `json:"img"`
+	Name   string `json:"name"`
+	Amount int    `json:"amount"`
+}
+
+type CalculationCharacterResult struct {
+	ExpWasted *int                              `json:"expWasted"`
+	Items     []*CalculationCharacterItemResult `json:"items"`
 }
 
 type Character struct {
@@ -153,6 +172,20 @@ type ElementalStoneMaterial struct {
 	Description *string   `json:"description"`
 	Source      []*string `json:"source"`
 	Rarity      *int      `json:"rarity"`
+}
+
+type ExpLevel struct {
+	Lvl     int  `json:"lvl"`
+	Asc     bool `json:"asc"`
+	AsclLvl int  `json:"asclLvl"`
+}
+
+type ExpMaterial struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Rarity      int    `json:"rarity"`
+	Exp         int    `json:"exp"`
 }
 
 type Fish struct {
@@ -291,6 +324,12 @@ type StatLevel struct {
 	Level     *int     `json:"level"`
 	Primary   *int     `json:"primary"`
 	Secondary *float64 `json:"secondary"`
+}
+
+type TalentLevel struct {
+	Aa    int `json:"aa"`
+	Skill int `json:"skill"`
+	Burst int `json:"burst"`
 }
 
 type TalentLvlUpMaterial struct {
