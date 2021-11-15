@@ -16,6 +16,7 @@ const DB_HOST = process.env.DATABASE_HOST || "localhost";
 const uri = `mongodb://${DB_HOST}`;
 
 const client = new MongoClient(uri, { auth: { username: DB_USER, password: DB_PASS } });
+const TOKEN = process.env.TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlNVUEVSQURNSU4iLCJzY29wZSI6Ii91cGRhdGVfZGF0YSIsImlhdCI6MTUxNjIzOTAyMn0.Ey0Z_w7Ans7DxZWOohVrJ2yGQxoT1Eom0F7sl7CYm2M";
 
 const datafolders = [
   'artifacts',
@@ -46,7 +47,13 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.post('/updateData', upload.array('data', 13), async (req, res) => {
+app.post('/updateData', upload.array('data'), async (req, res) => {
+  if (req.headers.authorization !== `Bearer ${TOKEN}`) {
+    console.log('Invalid token');
+    res.send('Hello World!');
+    return;
+  }
+
   try {
     await client.connect();
 
