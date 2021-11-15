@@ -10,7 +10,7 @@ input TalentLevel {
   burst: Int!
 }
 
-type CalculationCharacterItemResult {
+type CalculationItemResult {
   id: String!
   img: String!
   name: String!
@@ -26,5 +26,10 @@ input CalculateCharacterParams {
 
 type CalculationCharacterResult {
   expWasted: Int
-  items: [CalculationCharacterItemResult]
+  items: [CalculationItemResult]
+}
+
+input CalculateWeaponParams {
+  currentLevel: ExpLevel!
+  intendedLevel: ExpLevel!
 }

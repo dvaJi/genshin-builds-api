@@ -27,6 +27,11 @@ type Query {
     lang: String!
     params: CalculateCharacterParams!
   ): CalculationCharacterResult!
+  calculateWeaponLevel(
+    lang: String!
+    weaponId: String!
+    params: CalculateWeaponParams!
+  ): [CalculationItemResult]!
 }
 
 # type Mutation {

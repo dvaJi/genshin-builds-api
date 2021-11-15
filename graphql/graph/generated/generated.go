@@ -89,16 +89,16 @@ type ComplexityRoot struct {
 		Rarity      func(childComplexity int) int
 	}
 
-	CalculationCharacterItemResult struct {
+	CalculationCharacterResult struct {
+		ExpWasted func(childComplexity int) int
+		Items     func(childComplexity int) int
+	}
+
+	CalculationItemResult struct {
 		Amount func(childComplexity int) int
 		ID     func(childComplexity int) int
 		Img    func(childComplexity int) int
 		Name   func(childComplexity int) int
-	}
-
-	CalculationCharacterResult struct {
-		ExpWasted func(childComplexity int) int
-		Items     func(childComplexity int) int
 	}
 
 	Character struct {
@@ -327,6 +327,7 @@ type ComplexityRoot struct {
 		Artifacts                func(childComplexity int, lang string) int
 		Baits                    func(childComplexity int, lang string) int
 		CalculateCharacterLevel  func(childComplexity int, characterID string, lang string, params model.CalculateCharacterParams) int
+		CalculateWeaponLevel     func(childComplexity int, lang string, weaponID string, params model.CalculateWeaponParams) int
 		Character                func(childComplexity int, lang string, id string) int
 		CharacterExpMaterials    func(childComplexity int, lang string) int
 		Characters               func(childComplexity int, lang string) int
@@ -477,6 +478,7 @@ type QueryResolver interface {
 	Weapons(ctx context.Context, lang string) ([]*model.Weapon, error)
 	Weapon(ctx context.Context, lang string, id string) (*model.Weapon, error)
 	CalculateCharacterLevel(ctx context.Context, characterID string, lang string, params model.CalculateCharacterParams) (*model.CalculationCharacterResult, error)
+	CalculateWeaponLevel(ctx context.Context, lang string, weaponID string, params model.CalculateWeaponParams) ([]*model.CalculationItemResult, error)
 }
 
 type executableSchema struct {
@@ -718,34 +720,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Bait.Rarity(childComplexity), true
 
-	case "CalculationCharacterItemResult.amount":
-		if e.complexity.CalculationCharacterItemResult.Amount == nil {
-			break
-		}
-
-		return e.complexity.CalculationCharacterItemResult.Amount(childComplexity), true
-
-	case "CalculationCharacterItemResult.id":
-		if e.complexity.CalculationCharacterItemResult.ID == nil {
-			break
-		}
-
-		return e.complexity.CalculationCharacterItemResult.ID(childComplexity), true
-
-	case "CalculationCharacterItemResult.img":
-		if e.complexity.CalculationCharacterItemResult.Img == nil {
-			break
-		}
-
-		return e.complexity.CalculationCharacterItemResult.Img(childComplexity), true
-
-	case "CalculationCharacterItemResult.name":
-		if e.complexity.CalculationCharacterItemResult.Name == nil {
-			break
-		}
-
-		return e.complexity.CalculationCharacterItemResult.Name(childComplexity), true
-
 	case "CalculationCharacterResult.expWasted":
 		if e.complexity.CalculationCharacterResult.ExpWasted == nil {
 			break
@@ -759,6 +733,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CalculationCharacterResult.Items(childComplexity), true
+
+	case "CalculationItemResult.amount":
+		if e.complexity.CalculationItemResult.Amount == nil {
+			break
+		}
+
+		return e.complexity.CalculationItemResult.Amount(childComplexity), true
+
+	case "CalculationItemResult.id":
+		if e.complexity.CalculationItemResult.ID == nil {
+			break
+		}
+
+		return e.complexity.CalculationItemResult.ID(childComplexity), true
+
+	case "CalculationItemResult.img":
+		if e.complexity.CalculationItemResult.Img == nil {
+			break
+		}
+
+		return e.complexity.CalculationItemResult.Img(childComplexity), true
+
+	case "CalculationItemResult.name":
+		if e.complexity.CalculationItemResult.Name == nil {
+			break
+		}
+
+		return e.complexity.CalculationItemResult.Name(childComplexity), true
 
 	case "Character.affiliation":
 		if e.complexity.Character.Affiliation == nil {
@@ -1725,6 +1727,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CalculateCharacterLevel(childComplexity, args["characterId"].(string), args["lang"].(string), args["params"].(model.CalculateCharacterParams)), true
 
+	case "Query.calculateWeaponLevel":
+		if e.complexity.Query.CalculateWeaponLevel == nil {
+			break
+		}
+
+		args, err := ec.field_Query_calculateWeaponLevel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CalculateWeaponLevel(childComplexity, args["lang"].(string), args["weaponId"].(string), args["params"].(model.CalculateWeaponParams)), true
+
 	case "Query.character":
 		if e.complexity.Query.Character == nil {
 			break
@@ -2489,7 +2503,7 @@ input TalentLevel {
   burst: Int!
 }
 
-type CalculationCharacterItemResult {
+type CalculationItemResult {
   id: String!
   img: String!
   name: String!
@@ -2505,9 +2519,13 @@ input CalculateCharacterParams {
 
 type CalculationCharacterResult {
   expWasted: Int
-  items: [CalculationCharacterItemResult]
+  items: [CalculationItemResult]
 }
-`, BuiltIn: false},
+
+input CalculateWeaponParams {
+  currentLevel: ExpLevel!
+  intendedLevel: ExpLevel!
+}`, BuiltIn: false},
 	{Name: "graph/schemas/character.graphqls", Input: `type SkillAttribute {
   label: String!
   values: [String!]!
@@ -2799,6 +2817,11 @@ type Potion {
     lang: String!
     params: CalculateCharacterParams!
   ): CalculationCharacterResult!
+  calculateWeaponLevel(
+    lang: String!
+    weaponId: String!
+    params: CalculateWeaponParams!
+  ): [CalculationItemResult]!
 }
 
 # type Mutation {
@@ -2993,6 +3016,39 @@ func (ec *executionContext) field_Query_calculateCharacterLevel_args(ctx context
 	if tmp, ok := rawArgs["params"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
 		arg2, err = ec.unmarshalNCalculateCharacterParams2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculateCharacterParams(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["params"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_calculateWeaponLevel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["lang"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lang"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lang"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["weaponId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weaponId"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["weaponId"] = arg1
+	var arg2 model.CalculateWeaponParams
+	if tmp, ok := rawArgs["params"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
+		arg2, err = ec.unmarshalNCalculateWeaponParams2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculateWeaponParams(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4423,146 +4479,6 @@ func (ec *executionContext) _Bait_fish(ctx context.Context, field graphql.Collec
 	return ec.marshalOFishBait2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐFishBait(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _CalculationCharacterItemResult_id(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CalculationCharacterItemResult",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CalculationCharacterItemResult_img(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CalculationCharacterItemResult",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Img, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CalculationCharacterItemResult_name(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CalculationCharacterItemResult",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _CalculationCharacterItemResult_amount(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterItemResult) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CalculationCharacterItemResult",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Amount, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _CalculationCharacterResult_expWasted(ctx context.Context, field graphql.CollectedField, obj *model.CalculationCharacterResult) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4622,9 +4538,149 @@ func (ec *executionContext) _CalculationCharacterResult_items(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CalculationCharacterItemResult)
+	res := resTmp.([]*model.CalculationItemResult)
 	fc.Result = res
-	return ec.marshalOCalculationCharacterItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx, field.Selections, res)
+	return ec.marshalOCalculationItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationItemResult_id(ctx context.Context, field graphql.CollectedField, obj *model.CalculationItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationItemResult_img(ctx context.Context, field graphql.CollectedField, obj *model.CalculationItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Img, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationItemResult_name(ctx context.Context, field graphql.CollectedField, obj *model.CalculationItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationItemResult_amount(ctx context.Context, field graphql.CollectedField, obj *model.CalculationItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Character_id(ctx context.Context, field graphql.CollectedField, obj *model.Character) (ret graphql.Marshaler) {
@@ -9911,6 +9967,48 @@ func (ec *executionContext) _Query_calculateCharacterLevel(ctx context.Context, 
 	return ec.marshalNCalculationCharacterResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterResult(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_calculateWeaponLevel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_calculateWeaponLevel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CalculateWeaponLevel(rctx, args["lang"].(string), args["weaponId"].(string), args["params"].(model.CalculateWeaponParams))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.CalculationItemResult)
+	fc.Result = res
+	return ec.marshalNCalculationItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -13185,6 +13283,37 @@ func (ec *executionContext) unmarshalInputCalculateCharacterParams(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCalculateWeaponParams(ctx context.Context, obj interface{}) (model.CalculateWeaponParams, error) {
+	var it model.CalculateWeaponParams
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "currentLevel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentLevel"))
+			it.CurrentLevel, err = ec.unmarshalNExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "intendedLevel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("intendedLevel"))
+			it.IntendedLevel, err = ec.unmarshalNExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputExpLevel(ctx context.Context, obj interface{}) (model.ExpLevel, error) {
 	var it model.ExpLevel
 	asMap := map[string]interface{}{}
@@ -13469,48 +13598,6 @@ func (ec *executionContext) _Bait(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var calculationCharacterItemResultImplementors = []string{"CalculationCharacterItemResult"}
-
-func (ec *executionContext) _CalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, obj *model.CalculationCharacterItemResult) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, calculationCharacterItemResultImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CalculationCharacterItemResult")
-		case "id":
-			out.Values[i] = ec._CalculationCharacterItemResult_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "img":
-			out.Values[i] = ec._CalculationCharacterItemResult_img(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "name":
-			out.Values[i] = ec._CalculationCharacterItemResult_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "amount":
-			out.Values[i] = ec._CalculationCharacterItemResult_amount(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var calculationCharacterResultImplementors = []string{"CalculationCharacterResult"}
 
 func (ec *executionContext) _CalculationCharacterResult(ctx context.Context, sel ast.SelectionSet, obj *model.CalculationCharacterResult) graphql.Marshaler {
@@ -13526,6 +13613,48 @@ func (ec *executionContext) _CalculationCharacterResult(ctx context.Context, sel
 			out.Values[i] = ec._CalculationCharacterResult_expWasted(ctx, field, obj)
 		case "items":
 			out.Values[i] = ec._CalculationCharacterResult_items(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var calculationItemResultImplementors = []string{"CalculationItemResult"}
+
+func (ec *executionContext) _CalculationItemResult(ctx context.Context, sel ast.SelectionSet, obj *model.CalculationItemResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, calculationItemResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CalculationItemResult")
+		case "id":
+			out.Values[i] = ec._CalculationItemResult_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "img":
+			out.Values[i] = ec._CalculationItemResult_img(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._CalculationItemResult_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "amount":
+			out.Values[i] = ec._CalculationItemResult_amount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14894,6 +15023,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "calculateWeaponLevel":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_calculateWeaponLevel(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -15721,6 +15864,11 @@ func (ec *executionContext) unmarshalNCalculateCharacterParams2githubᚗcomᚋdv
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCalculateWeaponParams2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculateWeaponParams(ctx context.Context, v interface{}) (model.CalculateWeaponParams, error) {
+	res, err := ec.unmarshalInputCalculateWeaponParams(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNCalculationCharacterResult2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterResult(ctx context.Context, sel ast.SelectionSet, v model.CalculationCharacterResult) graphql.Marshaler {
 	return ec._CalculationCharacterResult(ctx, sel, &v)
 }
@@ -15733,6 +15881,44 @@ func (ec *executionContext) marshalNCalculationCharacterResult2ᚖgithubᚗcom�
 		return graphql.Null
 	}
 	return ec._CalculationCharacterResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCalculationItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx context.Context, sel ast.SelectionSet, v []*model.CalculationItemResult) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOCalculationItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalNCharacter2githubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCharacter(ctx context.Context, sel ast.SelectionSet, v model.Character) graphql.Marshaler {
@@ -15907,6 +16093,11 @@ func (ec *executionContext) marshalNElementalStoneMaterial2ᚖgithubᚗcomᚋdva
 		return graphql.Null
 	}
 	return ec._ElementalStoneMaterial(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNExpLevel2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpLevel(ctx context.Context, v interface{}) (*model.ExpLevel, error) {
+	res, err := ec.unmarshalInputExpLevel(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNExpMaterial2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐExpMaterialᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ExpMaterial) graphql.Marshaler {
@@ -17026,7 +17217,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, v []*model.CalculationCharacterItemResult) graphql.Marshaler {
+func (ec *executionContext) marshalOCalculationItemResult2ᚕᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx context.Context, sel ast.SelectionSet, v []*model.CalculationItemResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -17053,7 +17244,7 @@ func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚕᚖgithub�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOCalculationCharacterItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx, sel, v[i])
+			ret[i] = ec.marshalOCalculationItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -17067,11 +17258,11 @@ func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚕᚖgithub�
 	return ret
 }
 
-func (ec *executionContext) marshalOCalculationCharacterItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationCharacterItemResult(ctx context.Context, sel ast.SelectionSet, v *model.CalculationCharacterItemResult) graphql.Marshaler {
+func (ec *executionContext) marshalOCalculationItemResult2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCalculationItemResult(ctx context.Context, sel ast.SelectionSet, v *model.CalculationItemResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._CalculationCharacterItemResult(ctx, sel, v)
+	return ec._CalculationItemResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCharacterFood2ᚖgithubᚗcomᚋdvaJiᚋgenshinᚑbuildsᚑapiᚋgraphᚋmodelᚐCharacterFood(ctx context.Context, sel ast.SelectionSet, v *model.CharacterFood) graphql.Marshaler {

@@ -56,16 +56,21 @@ type CalculateCharacterParams struct {
 	IntendedTalentLvl *TalentLevel `json:"intendedTalentLvl"`
 }
 
-type CalculationCharacterItemResult struct {
+type CalculateWeaponParams struct {
+	CurrentLevel  *ExpLevel `json:"currentLevel"`
+	IntendedLevel *ExpLevel `json:"intendedLevel"`
+}
+
+type CalculationCharacterResult struct {
+	ExpWasted *int                     `json:"expWasted"`
+	Items     []*CalculationItemResult `json:"items"`
+}
+
+type CalculationItemResult struct {
 	ID     string `json:"id"`
 	Img    string `json:"img"`
 	Name   string `json:"name"`
 	Amount int    `json:"amount"`
-}
-
-type CalculationCharacterResult struct {
-	ExpWasted *int                              `json:"expWasted"`
-	Items     []*CalculationCharacterItemResult `json:"items"`
 }
 
 type Character struct {

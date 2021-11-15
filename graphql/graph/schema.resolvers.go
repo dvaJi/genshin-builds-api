@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
 	"src/genshindata"
 
@@ -124,7 +123,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 
 	var current float64 = 0
 	var moraNeeded = 0
-	items := []*model.CalculationCharacterItemResult{}
+	items := []*model.CalculationItemResult{}
 
 	// Calculate EXP
 	// TODO: This should calculate based on ascension, you will lose exp on every ascension level
@@ -141,7 +140,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 			if expItem.ID == "wanderers_advice" {
 				var amount = math.Ceil(current / float64(expItem.Exp))
 
-				items = append(items, &model.CalculationCharacterItemResult{
+				items = append(items, &model.CalculationItemResult{
 					ID:     expItem.ID,
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
@@ -151,7 +150,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 				current = target - math.Ceil(target/float64(expItem.Exp))*float64(expItem.Exp)
 			} else if current > 0 && math.Floor(current/float64(expItem.Exp)) > 0 {
 				var amount = math.Floor(current / float64(expItem.Exp))
-				items = append(items, &model.CalculationCharacterItemResult{
+				items = append(items, &model.CalculationItemResult{
 					ID:     expItem.ID,
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
@@ -163,7 +162,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 		}
 	}
 
-	var ItemsMap = make(map[string]*model.CalculationCharacterItemResult)
+	var ItemsMap = make(map[string]*model.CalculationItemResult)
 
 	// Calculate Ascension materials
 	if params.CurrentLevel.AsclLvl < params.IntendedLevel.AsclLvl {
@@ -175,7 +174,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 			moraNeeded += *item.Cost
 			// Mat one
 			if ItemsMap[item.MatOne.ID] == nil {
-				ItemsMap[item.MatOne.ID] = &model.CalculationCharacterItemResult{
+				ItemsMap[item.MatOne.ID] = &model.CalculationItemResult{
 					ID:     item.MatOne.ID,
 					Name:   item.MatOne.Name,
 					Img:    "/jewels_materials/" + item.MatOne.ID + ".png",
@@ -188,7 +187,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 			// Mat two
 			if item.MatTwo != nil {
 				if ItemsMap[item.MatTwo.ID] == nil {
-					ItemsMap[item.MatTwo.ID] = &model.CalculationCharacterItemResult{
+					ItemsMap[item.MatTwo.ID] = &model.CalculationItemResult{
 						ID:     item.MatTwo.ID,
 						Name:   item.MatTwo.Name,
 						Img:    "/elemental_stone_materials/" + item.MatTwo.ID + ".png",
@@ -201,7 +200,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 
 			// Mat three
 			if ItemsMap[item.MatThree.ID] == nil {
-				ItemsMap[item.MatThree.ID] = &model.CalculationCharacterItemResult{
+				ItemsMap[item.MatThree.ID] = &model.CalculationItemResult{
 					ID:     item.MatThree.ID,
 					Name:   item.MatThree.Name,
 					Img:    "/local_materials/" + item.MatThree.ID + ".png",
@@ -213,7 +212,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 
 			// Mat four
 			if ItemsMap[item.MatFour.ID] == nil {
-				ItemsMap[item.MatFour.ID] = &model.CalculationCharacterItemResult{
+				ItemsMap[item.MatFour.ID] = &model.CalculationItemResult{
 					ID:     item.MatFour.ID,
 					Name:   item.MatFour.Name,
 					Img:    "/common_materials/" + item.MatFour.ID + ".png",
@@ -241,7 +240,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 				for index, item := range talent.Items {
 					var currentFolder = TalentsMaterialFolder[index]
 					if ItemsMap[item.ID] == nil {
-						ItemsMap[item.ID] = &model.CalculationCharacterItemResult{
+						ItemsMap[item.ID] = &model.CalculationItemResult{
 							ID:     item.ID,
 							Name:   item.Name,
 							Img:    "/" + currentFolder + "/" + item.ID + ".png",
@@ -272,12 +271,11 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 
 	// append ItemsMap to items
 	for _, item := range ItemsMap {
-		log.Println(item.ID)
 		items = append(items, item)
 	}
 
 	if moraNeeded > 0 {
-		items = append(items, &model.CalculationCharacterItemResult{
+		items = append(items, &model.CalculationItemResult{
 			ID:     "mora",
 			Name:   "Mora",
 			Img:    `/materials/mora.png`,
@@ -293,6 +291,107 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 	}
 
 	return &result, nil
+}
+
+func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, weaponID string, params model.CalculateWeaponParams) ([]*model.CalculationItemResult, error) {
+	lvlExp := genshindata.WeaponLvlExpList()
+	weapon, err := genshindata.GetWeaponById(r.DB, lang, weaponID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	weaponExpMaterial, err := genshindata.GetWeaponExpMaterials(r.DB, lang)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var current float64 = 0
+	var moraNeeded = 0
+	items := []*model.CalculationItemResult{}
+
+	// Calculate EXP
+	if params.IntendedLevel.Lvl >= params.CurrentLevel.Lvl {
+		var target = float64(lvlExp[*weapon.Rarity-3][params.IntendedLevel.Lvl-1] -
+			(lvlExp[*weapon.Rarity-3][params.CurrentLevel.Lvl-1] + 0))
+		current = target
+		moraNeeded = int(math.Ceil(target/10/20) * 20)
+
+		for _, expItem := range weaponExpMaterial {
+			if expItem.ID == "enhancement_ore" {
+				var amount = math.Ceil(current / float64(expItem.Exp))
+
+				items = append(items, &model.CalculationItemResult{
+					ID:     expItem.ID,
+					Name:   expItem.Name,
+					Img:    "/materials/" + expItem.ID + ".png",
+					Amount: int(amount),
+				})
+
+				current = target - math.Ceil(target/float64(expItem.Exp))*float64(expItem.Exp)
+			} else if current > 0 && math.Floor(current/float64(expItem.Exp)) > 0 {
+				var amount = math.Floor(current / float64(expItem.Exp))
+				items = append(items, &model.CalculationItemResult{
+					ID:     expItem.ID,
+					Name:   expItem.Name,
+					Img:    "/materials/" + expItem.ID + ".png",
+					Amount: int(amount),
+				})
+
+				current = target - math.Floor(target/float64(expItem.Exp))*float64(expItem.Exp)
+			}
+		}
+	}
+
+	var ItemsMap = make(map[string]*model.CalculationItemResult)
+	var TalentsMaterialFolder []string = []string{
+		"weapon_primary_materials",
+		"weapon_secondary_materials",
+		"common_materials",
+		"weapon_primary_materials",
+	}
+
+	// Calculate materials for talents
+	for _, ascension := range weapon.Ascensions {
+		if (params.CurrentLevel.AsclLvl <= *ascension.Ascension) && (*ascension.Ascension <= params.IntendedLevel.AsclLvl) {
+			if ascension.Cost == nil {
+				continue
+			}
+
+			moraNeeded += *ascension.Cost
+
+			for index, item := range ascension.Materials {
+				var currentFolder = TalentsMaterialFolder[index]
+				if ItemsMap[item.ID] == nil {
+					ItemsMap[item.ID] = &model.CalculationItemResult{
+						ID:     item.ID,
+						Name:   item.Name,
+						Img:    "/" + currentFolder + "/" + item.ID + ".png",
+						Amount: *item.Amount,
+					}
+				} else {
+					ItemsMap[item.ID].Amount += *item.Amount
+				}
+			}
+		}
+	}
+
+	// append ItemsMap to items
+	for _, item := range ItemsMap {
+		items = append(items, item)
+	}
+
+	if moraNeeded > 0 {
+		items = append(items, &model.CalculationItemResult{
+			ID:     "mora",
+			Name:   "Mora",
+			Img:    `/materials/mora.png`,
+			Amount: int(moraNeeded),
+		})
+	}
+
+	return items, nil
 }
 
 // Query returns generated.QueryResolver implementation.
