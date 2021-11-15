@@ -21,6 +21,7 @@ const datafolders = [
   'artifacts',
   'bait',
   'characters',
+  'character_exp_material',
   'common_materials',
   'elemental_stone_materials',
   'fish',
@@ -33,6 +34,7 @@ const datafolders = [
   'talent_lvl_up_materials',
   'weapon_primary_materials',
   'weapon_secondary_materials',
+  'weapon_enhancement_material',
   'weapons',
 ];
 

@@ -2,6 +2,7 @@ node_modules/
 vendor
 redis_data/*
 db_data/*
+tmp/
 
 graphql/*.exe
 
