@@ -13,9 +13,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${DATABASE_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${DATABASE_PASSWORD}
   api:
-    build:
-      dockerfile: Dockerfile
-      context: ./graphql
+    image: "${API_IMAGE}"
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
@@ -24,9 +22,7 @@ services:
       - db
       - redis
   dataupdater:
-    build:
-      dockerfile: Dockerfile
-      context: ./dataupdater
+    image: "${DATAUPDATER_IMAGE}"
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
