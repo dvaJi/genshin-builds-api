@@ -1,0 +1,83 @@
+name: CDCID
+
+on: [push]
+
+env:
+  API_IMAGE: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')/api
+  DATAUPDATER_IMAGE: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')/dataupdater
+  NGINX_IMAGE: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')/nginx
+
+jobs:
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v1
+      - name: Add environment variables to .env
+        run: |
+          echo DATABASE_HOST=${{ secrets.DATABASE_HOST }} >> .env
+          echo DATABASE_USER=${{ secrets.DATABASE_USER }} >> .env
+          echo DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} >> .env
+      - name: Set environment variables
+        run: |
+          echo "API_IMAGE=$(echo ${{env.API_IMAGE}} )" >> $GITHUB_ENV
+          echo "DATAUPDATER_IMAGE=$(echo ${{env.DATAUPDATER_IMAGE}} )" >> $GITHUB_ENV
+          echo "NGINX_IMAGE=$(echo ${{env.NGINX_IMAGE}} )" >> $GITHUB_ENV
+      - name: Log in to GitHub Packages
+        run: echo ${PERSONAL_ACCESS_TOKEN} | docker login ghcr.io -u ${{ secrets.NAMESPACE }} --password-stdin
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Pull images
+        run: |
+          docker pull ${{ env.API_IMAGE }} || true
+          docker pull ${{ env.DATAUPDATER_IMAGE }} || true
+          docker pull ${{ env.NGINX_IMAGE }} || true
+      - name: Build images
+        run: |
+          docker-compose -f docker-compose.ci.yml build
+      - name: Push images
+        run: |
+          docker push ${{ env.API_IMAGE }}
+          docker push ${{ env.DATAUPDATER_IMAGE }}
+          docker push ${{ env.NGINX_IMAGE }}
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v1
+      - name: Add environment variables to .env
+        run: |
+          echo API_IMAGE=${{ env.API_IMAGE }} >> .env
+          echo DATAUPDATER_IMAGE=${{ env.DATAUPDATER_IMAGE }} >> .env
+          echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
+          echo NAMESPACE=${{ secrets.NAMESPACE }} >> .env
+          echo DATABASE_HOST=${{ secrets.DATABASE_HOST }} >> .env
+          echo DATABASE_USER=${{ secrets.DATABASE_USER }} >> .env
+          echo DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} >> .env
+          echo PERSONAL_ACCESS_TOKEN=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .env
+      - name: Add the private SSH key to the ssh-agent
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-add - <<< "${{ secrets.PRIVATE_KEY }}"
+      - name: Build and deploy images on DigitalOcean
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          scp  -o StrictHostKeyChecking=no -r ./.env ./docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }}:/app
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP_ADDRESS }} << 'ENDSSH'
+            cd /app
+            source .env
+            docker login ghcr.io -u $NAMESPACE -p $PERSONAL_ACCESS_TOKEN
+            docker pull $API_IMAGE
+            docker pull $DATAUPDATER_IMAGE
+            docker pull $NGINX_IMAGE
+            docker-compose -f docker-compose.prod.yml up -d
+          ENDSSH

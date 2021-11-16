@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   redis:
     image: redis:6.2.5-alpine
@@ -11,27 +12,17 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${DATABASE_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${DATABASE_PASSWORD}
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DATABASE_USER}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DATABASE_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:27017/
-    depends_on:
-      - db
   api:
     build:
       dockerfile: Dockerfile
       context: ./graphql
+      cache_from:
+        - "${API_IMAGE}"
+    image: "${API_IMAGE}"
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_HOST: ${DATABASE_HOST}
-    ports:
-      - "8080:8080"
     depends_on:
       - db
       - redis
@@ -39,14 +30,27 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./dataupdater
+      cache_from:
+        - "${DATAUPDATER_IMAGE}"
+    image: ${DATAUPDATER_IMAGE}
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_HOST: ${DATABASE_HOST}
-    ports:
-      - "3000:3000"
     depends_on:
       - db
+  nginx:
+    build:
+      context: ./nginx
+      cache_from:
+        - "${NGINX_IMAGE}"
+    image: "${NGINX_IMAGE}"
+    ports:
+      - 80:80
+      - 3000:3000
+    depends_on:
+      - api
+      - dataupdater
 
 volumes:
   db_data:
