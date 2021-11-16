@@ -12,6 +12,5 @@ RUN go build \
 # 本番実行環境
 FROM scratch as runner
 COPY --from=builder /go/bin/server /app/server
-COPY ./.env /
 EXPOSE 8080
 ENTRYPOINT ["/app/server"]
