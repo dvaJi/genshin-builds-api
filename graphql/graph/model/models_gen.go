@@ -101,6 +101,24 @@ type CharacterFood struct {
 	Name *string `json:"name"`
 }
 
+type CharacterInfo struct {
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	Title         string          `json:"title"`
+	Description   string          `json:"description"`
+	WeaponType    string          `json:"weapon_type" bson:"weapon_type"`
+	Element       string          `json:"element"`
+	Gender        string          `json:"gender"`
+	Substat       string          `json:"substat"`
+	Affiliation   string          `json:"affiliation"`
+	Region        string          `json:"region"`
+	Rarity        *int            `json:"rarity"`
+	Birthday      []*int          `json:"birthday"`
+	Constellation string          `json:"constellation"`
+	Domain        string          `json:"domain"`
+	Cv            *CharacterVoice `json:"cv"`
+}
+
 type CharacterVoice struct {
 	English  string `json:"english"`
 	Chinese  string `json:"chinese"`
@@ -374,6 +392,19 @@ type WeaponAscension struct {
 	Level     *int                 `json:"level"`
 	Cost      *int                 `json:"cost"`
 	Materials []*AscensionMaterial `json:"materials"`
+}
+
+type WeaponInfo struct {
+	ID          *string             `json:"id"`
+	Name        *string             `json:"name"`
+	Description *string             `json:"description"`
+	Rarity      *int                `json:"rarity"`
+	Type        *string             `json:"type"`
+	Domain      *string             `json:"domain"`
+	Passive     *string             `json:"passive"`
+	Bonus       *string             `json:"bonus"`
+	Stats       *WeaponStat         `json:"stats"`
+	Refinements []*WeaponRefinement `json:"refinements"`
 }
 
 type WeaponPrimaryMaterial struct {

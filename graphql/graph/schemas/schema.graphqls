@@ -1,7 +1,7 @@
 type Query {
   artifacts(lang: String!): [Artifact!]!
   artifact(lang: String!, id: ID!): Artifact!
-  characters(lang: String!): [Character!]!
+  characters(lang: String!): [CharacterInfo!]!
   character(lang: String!, id: ID!): Character!
   characterExpMaterials(lang: String!): [ExpMaterial!]!
   commonMaterials(lang: String!): [CommonMaterial!]!
@@ -20,7 +20,7 @@ type Query {
   weaponPrimaryMaterials(lang: String!): [WeaponPrimaryMaterial!]!
   weaponSecondaryMaterials(lang: String!): [WeaponSecondaryMaterial!]!
   weaponExpMaterials(lang: String!): [ExpMaterial!]!
-  weapons(lang: String!): [Weapon!]!
+  weapons(lang: String!): [WeaponInfo!]!
   weapon(lang: String!, id: ID!): Weapon!
   calculateCharacterLevel(
     characterId: String!

@@ -74,8 +74,8 @@ func GetArtifactById(db *mongo.Client, language string, id string) (*model.Artif
 	return artifact, err
 }
 
-func GetCharacters(db *mongo.Client, language string) ([]*model.Character, error) {
-	var characters []*model.Character
+func GetCharacters(db *mongo.Client, language string) ([]*model.CharacterInfo, error) {
+	var characters []*model.CharacterInfo
 	ctx := context.Background()
 
 	cur, err := db.Database("genshindata_"+language).Collection("characters").Find(ctx, bson.D{})
@@ -85,7 +85,7 @@ func GetCharacters(db *mongo.Client, language string) ([]*model.Character, error
 
 	// Iterate through the cursor and decode each document one at a time
 	for cur.Next(ctx) {
-		var t model.Character
+		var t model.CharacterInfo
 		err := cur.Decode(&t)
 		if err != nil {
 			return characters, err
@@ -521,8 +521,8 @@ func GetWeaponSecondaryMaterials(db *mongo.Client, language string) ([]*model.We
 	return list, nil
 }
 
-func GetWeapons(db *mongo.Client, language string) ([]*model.Weapon, error) {
-	var list []*model.Weapon
+func GetWeapons(db *mongo.Client, language string) ([]*model.WeaponInfo, error) {
+	var list []*model.WeaponInfo
 	ctx := context.Background()
 
 	cur, err := db.Database("genshindata_"+language).Collection("weapons").Find(ctx, bson.D{})
@@ -532,7 +532,7 @@ func GetWeapons(db *mongo.Client, language string) ([]*model.Weapon, error) {
 
 	// Iterate through the cursor and decode each document one at a time
 	for cur.Next(ctx) {
-		var t model.Weapon
+		var t model.WeaponInfo
 		err := cur.Decode(&t)
 		if err != nil {
 			return list, err

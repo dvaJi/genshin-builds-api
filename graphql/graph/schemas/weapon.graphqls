@@ -36,3 +36,16 @@ type Weapon {
   ascensions: [WeaponAscension]
   refinements: [WeaponRefinement]
 }
+
+type WeaponInfo {
+  id: String
+  name: String
+  description: String
+  rarity: Int
+  type: String
+  domain: String
+  passive: String
+  bonus: String
+  stats: WeaponStat
+  refinements: [WeaponRefinement]
+}

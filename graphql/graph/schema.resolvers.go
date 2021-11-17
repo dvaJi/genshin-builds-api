@@ -23,7 +23,7 @@ func (r *queryResolver) Artifact(ctx context.Context, lang string, id string) (*
 	return art, err
 }
 
-func (r *queryResolver) Characters(ctx context.Context, lang string) ([]*model.Character, error) {
+func (r *queryResolver) Characters(ctx context.Context, lang string) ([]*model.CharacterInfo, error) {
 	return genshindata.GetCharacters(r.DB, lang)
 }
 
@@ -99,7 +99,7 @@ func (r *queryResolver) WeaponExpMaterials(ctx context.Context, lang string) ([]
 	return genshindata.GetWeaponExpMaterials(r.DB, lang)
 }
 
-func (r *queryResolver) Weapons(ctx context.Context, lang string) ([]*model.Weapon, error) {
+func (r *queryResolver) Weapons(ctx context.Context, lang string) ([]*model.WeaponInfo, error) {
 	return genshindata.GetWeapons(r.DB, lang)
 }
 

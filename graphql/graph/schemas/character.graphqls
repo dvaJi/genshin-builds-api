@@ -55,6 +55,24 @@ type TalentMaterial {
   items: [AscensionMaterial]
 }
 
+type CharacterInfo {
+  id: String!
+  name: String!
+  title: String!
+  description: String!
+  weapon_type: String!
+  element: String!
+  gender: String!
+  substat: String!
+  affiliation: String!
+  region: String!
+  rarity: Int
+  birthday: [Int]
+  constellation: String!
+  domain: String!
+  cv: CharacterVoice
+}
+
 type Character {
   id: String!
   name: String!
