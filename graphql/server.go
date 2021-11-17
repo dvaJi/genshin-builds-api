@@ -8,6 +8,8 @@ import (
 	genshindata "src/genshindata"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dvaJi/genshin-builds-api/graph"
 	"github.com/dvaJi/genshin-builds-api/graph/generated"
@@ -26,7 +28,14 @@ const defaultPort = "8080"
 func graphqlHandler(dbClient *mongo.Client) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: dbClient}}))
+	h := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: dbClient}}))
+
+	h.AddTransport(transport.Options{})
+	h.AddTransport(transport.POST{})
+
+	if os.Getenv("ENVIRONMENT") == "development" {
+		h.Use(extension.Introspection{})
+	}
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
@@ -96,8 +105,13 @@ func main() {
 	r.Use(cors.Default())
 
 	r.POST("/query", graphqlHandler(dbClient))
-	r.GET("/", playgroundHandler())
+
+	if os.Getenv("ENVIRONMENT") == "development" {
+		r.GET("/", playgroundHandler())
+	}
+
 	r.POST("/corsproxy", simpleCorsProxy())
+
 	http.ListenAndServe(":"+port, r)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

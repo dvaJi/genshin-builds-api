@@ -24,6 +24,7 @@ services:
   dataupdater:
     image: "${DATAUPDATER_IMAGE}"
     environment:
+      ENVIRONMENT: production
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_HOST: ${DATABASE_HOST}
