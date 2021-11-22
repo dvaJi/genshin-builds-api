@@ -41,21 +41,23 @@ services:
     depends_on:
       - db
   nginx:
-    build:
-      context: ./nginx
-      cache_from:
-        - "${NGINX_IMAGE}"
-    image: "${NGINX_IMAGE}"
-    volumes:
-      - /certs:/certs
+    image: jonasal/nginx-certbot:latest
+    restart: unless-stopped
+    environment:
+      CERTBOT_EMAIL: ${EMAIL}
+      RENEWAL_INTERVAL: 8d
     ports:
       - 80:80
       - 443:443
       - 3000:3000
+    volumes:
+      - nginx_secrets:/etc/letsencrypt
+      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
     depends_on:
       - api
       - dataupdater
 
 volumes:
-  db_data:
-  redis_data:
+  db_data: null
+  redis_data: null
+  nginx_secrets: null
