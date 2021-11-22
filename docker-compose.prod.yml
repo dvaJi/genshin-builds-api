@@ -48,5 +48,6 @@ services:
       - dataupdater
 
 volumes:
-  db_data:
-  redis_data:
+  db_data: null
+  redis_data: null
+  nginx_secrets: null
