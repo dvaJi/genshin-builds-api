@@ -46,8 +46,11 @@ services:
       cache_from:
         - "${NGINX_IMAGE}"
     image: "${NGINX_IMAGE}"
+    volumes:
+      - /certs:/certs
     ports:
       - 80:80
+      - 443:443
       - 3000:3000
     depends_on:
       - api
