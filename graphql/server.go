@@ -13,7 +13,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/dvaJi/genshin-builds-api/graph"
 	"github.com/dvaJi/genshin-builds-api/graph/generated"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -102,7 +101,6 @@ func main() {
 	dbClient := genshindata.Init(dbConfig)
 
 	r := gin.Default()
-	r.Use(cors.Default())
 
 	r.POST("/query", graphqlHandler(dbClient))
 
