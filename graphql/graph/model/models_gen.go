@@ -71,6 +71,7 @@ type CalculationItemResult struct {
 	Img    string `json:"img"`
 	Name   string `json:"name"`
 	Amount int    `json:"amount"`
+	Rarity int    `json:"rarity"`
 }
 
 type Character struct {

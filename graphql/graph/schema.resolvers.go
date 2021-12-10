@@ -145,6 +145,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
 					Amount: int(amount),
+					Rarity: expItem.Rarity,
 				})
 
 				current = target - math.Ceil(target/float64(expItem.Exp))*float64(expItem.Exp)
@@ -155,6 +156,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
 					Amount: int(amount),
+					Rarity: expItem.Rarity,
 				})
 
 				current = target - math.Floor(target/float64(expItem.Exp))*float64(expItem.Exp)
@@ -179,6 +181,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Name:   item.MatOne.Name,
 					Img:    "/jewels_materials/" + item.MatOne.ID + ".png",
 					Amount: *item.MatOne.Amount,
+					Rarity: *item.MatOne.Rarity,
 				}
 			} else {
 				ItemsMap[item.MatOne.ID].Amount += *item.MatOne.Amount
@@ -192,6 +195,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 						Name:   item.MatTwo.Name,
 						Img:    "/elemental_stone_materials/" + item.MatTwo.ID + ".png",
 						Amount: *item.MatTwo.Amount,
+						Rarity: *item.MatTwo.Rarity,
 					}
 				} else {
 					ItemsMap[item.MatTwo.ID].Amount += *item.MatTwo.Amount
@@ -205,6 +209,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Name:   item.MatThree.Name,
 					Img:    "/local_materials/" + item.MatThree.ID + ".png",
 					Amount: *item.MatThree.Amount,
+					Rarity: *item.MatThree.Rarity,
 				}
 			} else {
 				ItemsMap[item.MatThree.ID].Amount += *item.MatThree.Amount
@@ -217,6 +222,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Name:   item.MatFour.Name,
 					Img:    "/common_materials/" + item.MatFour.ID + ".png",
 					Amount: *item.MatFour.Amount,
+					Rarity: *item.MatFour.Rarity,
 				}
 			} else {
 				ItemsMap[item.MatFour.ID].Amount += *item.MatFour.Amount
@@ -245,6 +251,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 							Name:   item.Name,
 							Img:    "/" + currentFolder + "/" + item.ID + ".png",
 							Amount: *item.Amount,
+							Rarity: *item.Rarity,
 						}
 					} else {
 						ItemsMap[item.ID].Amount += *item.Amount
@@ -280,6 +287,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 			Name:   "Mora",
 			Img:    `/materials/mora.png`,
 			Amount: int(moraNeeded),
+			Rarity: 1,
 		})
 	}
 
@@ -327,6 +335,7 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
 					Amount: int(amount),
+					Rarity: expItem.Rarity,
 				})
 
 				current = target - math.Ceil(target/float64(expItem.Exp))*float64(expItem.Exp)
@@ -337,6 +346,7 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 					Name:   expItem.Name,
 					Img:    "/materials/" + expItem.ID + ".png",
 					Amount: int(amount),
+					Rarity: expItem.Rarity,
 				})
 
 				current = target - math.Floor(target/float64(expItem.Exp))*float64(expItem.Exp)
@@ -369,6 +379,7 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 						Name:   item.Name,
 						Img:    "/" + currentFolder + "/" + item.ID + ".png",
 						Amount: *item.Amount,
+						Rarity: *item.Rarity,
 					}
 				} else {
 					ItemsMap[item.ID].Amount += *item.Amount
@@ -388,6 +399,7 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 			Name:   "Mora",
 			Img:    `/materials/mora.png`,
 			Amount: int(moraNeeded),
+			Rarity: 1,
 		})
 	}
 

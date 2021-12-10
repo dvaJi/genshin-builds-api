@@ -15,6 +15,7 @@ type CalculationItemResult {
   img: String!
   name: String!
   amount: Int!
+  rarity: Int!
 }
 
 input CalculateCharacterParams {

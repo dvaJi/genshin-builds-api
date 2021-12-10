@@ -99,6 +99,7 @@ type ComplexityRoot struct {
 		ID     func(childComplexity int) int
 		Img    func(childComplexity int) int
 		Name   func(childComplexity int) int
+		Rarity func(childComplexity int) int
 	}
 
 	Character struct {
@@ -792,6 +793,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CalculationItemResult.Name(childComplexity), true
+
+	case "CalculationItemResult.rarity":
+		if e.complexity.CalculationItemResult.Rarity == nil {
+			break
+		}
+
+		return e.complexity.CalculationItemResult.Rarity(childComplexity), true
 
 	case "Character.affiliation":
 		if e.complexity.Character.Affiliation == nil {
@@ -2714,6 +2722,7 @@ type CalculationItemResult {
   img: String!
   name: String!
   amount: Int!
+  rarity: Int!
 }
 
 input CalculateCharacterParams {
@@ -4903,6 +4912,41 @@ func (ec *executionContext) _CalculationItemResult_amount(ctx context.Context, f
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CalculationItemResult_rarity(ctx context.Context, field graphql.CollectedField, obj *model.CalculationItemResult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CalculationItemResult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rarity, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14724,6 +14768,11 @@ func (ec *executionContext) _CalculationItemResult(ctx context.Context, sel ast.
 			}
 		case "amount":
 			out.Values[i] = ec._CalculationItemResult_amount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "rarity":
+			out.Values[i] = ec._CalculationItemResult_rarity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

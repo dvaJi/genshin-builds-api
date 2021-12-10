@@ -16,6 +16,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -83,6 +84,13 @@ func simpleCorsProxy() gin.HandlerFunc {
 }
 
 func main() {
+	if os.Getenv("ENVIRONMENT") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
