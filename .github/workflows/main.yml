@@ -51,6 +51,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Add environment variables to .env
         run: |
+          echo ENVIRONMENT=production >> .env
           echo API_IMAGE=${{ env.API_IMAGE }} >> .env
           echo DATAUPDATER_IMAGE=${{ env.DATAUPDATER_IMAGE }} >> .env
           echo NGINX_IMAGE=${{ env.NGINX_IMAGE }} >> .env
