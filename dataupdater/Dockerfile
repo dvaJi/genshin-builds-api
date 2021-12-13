@@ -1,19 +1,15 @@
-FROM node:14.18-alpine
+FROM golang:1.16.5 as builder
+WORKDIR /app
+COPY .  ./
+RUN go mod download
+ARG CGO_ENABLED=0
+ARG GOOS=linux
+ARG GOARCH=amd64
+RUN go build \
+    -o /go/bin/server \
+    -ldflags '-s -w'
 
-# Create app directory
-WORKDIR /usr/src/app
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-
-# Bundle app source
-COPY . .
-
+FROM scratch as runner
+COPY --from=builder /go/bin/server /app/server
 EXPOSE 3000
-CMD [ "node", "worker.js" ]
+ENTRYPOINT ["/app/server"]

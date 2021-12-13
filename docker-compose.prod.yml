@@ -25,7 +25,9 @@ services:
   dataupdater:
     image: "${DATAUPDATER_IMAGE}"
     environment:
+      PORT: 3000
       ENVIRONMENT: production
+      TOKEN: ${TOKEN}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_HOST: ${DATABASE_HOST}

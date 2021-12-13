@@ -9,7 +9,6 @@ RUN go build \
     -o /go/bin/server \
     -ldflags '-s -w'
 
-# 本番実行環境
 FROM scratch as runner
 COPY --from=builder /go/bin/server /app/server
 EXPOSE 8080
