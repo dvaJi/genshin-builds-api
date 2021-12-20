@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"src/genshindata"
 
 	"github.com/dvaJi/genshin-builds-api/graph/generated"
@@ -124,6 +125,11 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 	var current float64 = 0
 	var moraNeeded = 0
 	items := []*model.CalculationItemResult{}
+	var SortMap = make(map[string]*int)
+
+	SetSortMap := func(key string, amount int) {
+		SortMap[key] = &amount
+	}
 
 	// Calculate EXP
 	// TODO: This should calculate based on ascension, you will lose exp on every ascension level
@@ -164,6 +170,10 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 		}
 	}
 
+	SetSortMap("heros_wit", 1)
+	SetSortMap("adventurers_experience", 2)
+	SetSortMap("wanderers_advice", 3)
+
 	var ItemsMap = make(map[string]*model.CalculationItemResult)
 
 	// Calculate Ascension materials
@@ -183,6 +193,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Amount: *item.MatOne.Amount,
 					Rarity: *item.MatOne.Rarity,
 				}
+				SetSortMap(item.MatOne.ID, 100+(*item.MatOne.Rarity))
 			} else {
 				ItemsMap[item.MatOne.ID].Amount += *item.MatOne.Amount
 			}
@@ -197,6 +208,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 						Amount: *item.MatTwo.Amount,
 						Rarity: *item.MatTwo.Rarity,
 					}
+					SetSortMap(item.MatTwo.ID, 200+(*item.MatOne.Rarity))
 				} else {
 					ItemsMap[item.MatTwo.ID].Amount += *item.MatTwo.Amount
 				}
@@ -211,6 +223,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Amount: *item.MatThree.Amount,
 					Rarity: *item.MatThree.Rarity,
 				}
+				SetSortMap(item.MatThree.ID, 300+(*item.MatOne.Rarity))
 			} else {
 				ItemsMap[item.MatThree.ID].Amount += *item.MatThree.Amount
 			}
@@ -224,6 +237,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 					Amount: *item.MatFour.Amount,
 					Rarity: *item.MatFour.Rarity,
 				}
+				SetSortMap(item.MatFour.ID, 400+(*item.MatOne.Rarity))
 			} else {
 				ItemsMap[item.MatFour.ID].Amount += *item.MatFour.Amount
 			}
@@ -253,6 +267,7 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 							Amount: *item.Amount,
 							Rarity: *item.Rarity,
 						}
+						SetSortMap(item.ID, ((index+1)*1000)+(*item.Rarity))
 					} else {
 						ItemsMap[item.ID].Amount += *item.Amount
 					}
@@ -280,6 +295,11 @@ func (r *queryResolver) CalculateCharacterLevel(ctx context.Context, characterID
 	for _, item := range ItemsMap {
 		items = append(items, item)
 	}
+
+	// sort items
+	sort.Slice(items, func(i, j int) bool {
+		return *SortMap[items[i].ID] < *SortMap[items[j].ID]
+	})
 
 	if moraNeeded > 0 {
 		items = append(items, &model.CalculationItemResult{
@@ -318,6 +338,11 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 	var current float64 = 0
 	var moraNeeded = 0
 	items := []*model.CalculationItemResult{}
+	var SortMap = make(map[string]*int)
+
+	SetSortMap := func(key string, amount int) {
+		SortMap[key] = &amount
+	}
 
 	// Calculate EXP
 	if params.IntendedLevel.Lvl >= params.CurrentLevel.Lvl {
@@ -354,6 +379,10 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 		}
 	}
 
+	SetSortMap("enhancement_ore", 1)
+	SetSortMap("fine_enhancement_ore", 2)
+	SetSortMap("mystic_enhancement_ore", 3)
+
 	var ItemsMap = make(map[string]*model.CalculationItemResult)
 	var TalentsMaterialFolder []string = []string{
 		"weapon_primary_materials",
@@ -381,6 +410,7 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 						Amount: *item.Amount,
 						Rarity: *item.Rarity,
 					}
+					SetSortMap(item.ID, ((index+1)*1000)+(*item.Rarity))
 				} else {
 					ItemsMap[item.ID].Amount += *item.Amount
 				}
@@ -392,6 +422,11 @@ func (r *queryResolver) CalculateWeaponLevel(ctx context.Context, lang string, w
 	for _, item := range ItemsMap {
 		items = append(items, item)
 	}
+
+	// sort items
+	sort.Slice(items, func(i, j int) bool {
+		return *SortMap[items[i].ID] < *SortMap[items[j].ID]
+	})
 
 	if moraNeeded > 0 {
 		items = append(items, &model.CalculationItemResult{
