@@ -66,12 +66,17 @@ func main() {
 
 			f, err := file.Open()
 			if err != nil {
-				log.Println("Error opening file")
+				log.Println("Error opening file from form")
 				log.Println(err)
 				return
 			}
 
-			c.SaveUploadedFile(file, "./tmp/"+file.Filename)
+			errUp := c.SaveUploadedFile(file, "./tmp/"+file.Filename)
+			if errUp != nil {
+				log.Println("Error saving file")
+				log.Println(errUp)
+				return
+			}
 			log.Println("File saved")
 
 			defer f.Close()
@@ -79,7 +84,7 @@ func main() {
 			// open saved file
 			jsonFile, err := ioutil.ReadFile("./tmp/" + file.Filename)
 			if err != nil {
-				log.Println("Error opening file")
+				log.Println("Error opening file from fs")
 				log.Println(err)
 				return
 			}
