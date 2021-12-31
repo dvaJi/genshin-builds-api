@@ -47,6 +47,11 @@ func main() {
 			return
 		}
 
+		// Create ./tmp folder if not exists
+		if _, err := os.Stat("./tmp"); os.IsNotExist(err) {
+			os.Mkdir("./tmp", 0777)
+		}
+
 		// Init DB
 		ctx := context.Background()
 		client := StartDb(ctx)
