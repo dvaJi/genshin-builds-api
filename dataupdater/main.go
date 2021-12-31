@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const defaultPort = "8080"
+const defaultPort = "3000"
 
 func main() {
 	r := gin.Default()
@@ -61,29 +61,39 @@ func main() {
 			log.Println(file.Filename)
 			language := strings.ReplaceAll(strings.ReplaceAll(file.Filename, "data_", ""), ".min.json", "")
 
+			log.Println("Connecting to DB", language)
 			dbo := client.Database("genshindata_" + language)
 
 			f, err := file.Open()
 			if err != nil {
-				log.Fatal(err)
+				log.Println("Error opening file")
+				log.Println(err)
+				return
 			}
 
 			c.SaveUploadedFile(file, "./tmp/"+file.Filename)
+			log.Println("File saved")
 
 			defer f.Close()
 
 			// open saved file
 			jsonFile, err := ioutil.ReadFile("./tmp/" + file.Filename)
+			if err != nil {
+				log.Println("Error opening file")
+				log.Println(err)
+				return
+			}
 
 			mp := make(map[string]interface{})
 			// Decode JSON into our map
 			errJson := json.Unmarshal([]byte(jsonFile), &mp)
 			if errJson != nil {
+				log.Println("Error decoding JSON")
 				println(err)
 				return
 			}
 
-			// itearet over map
+			// iterate over map
 			for key, value := range mp {
 				// Drop and create collection
 				dbo.Collection(key).Drop(ctx)

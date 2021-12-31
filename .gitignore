@@ -2,7 +2,8 @@ node_modules/
 vendor
 redis_data/*
 db_data/*
-tmp/
+tmp/*
+!tmp/.gitkeep
 
 graphql/*.exe
 
