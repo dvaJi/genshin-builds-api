@@ -43,7 +43,7 @@ services:
     depends_on:
       - db
   nginx:
-    image: jonasal/nginx-certbot:latest
+    image: jonasal/nginx-certbot:3.1.0-alpine
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: ${EMAIL}
